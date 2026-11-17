@@ -7,6 +7,8 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
       --bg: #f8f8fa;
       --card-bg: #ffffff;
       --accent: #8e24aa;
@@ -14,8 +16,6 @@
       --text: #1c1c1e;
       --text-sec: #8e8e93;
       --border: #e5e5ea;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     [data-theme="dark"] {
@@ -32,15 +32,15 @@
       padding: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
       overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
 
-    /* Відступ під виріз iPhone */
+    /* Гарантований безпечний відступ під Dynamic Island / Notch на iPhone */
     #app {
-      padding-top: max(var(--safe-top), 20px);
+      padding-top: max(var(--safe-top), 24px);
       padding-bottom: calc(80px + var(--safe-bottom));
       padding-left: 16px;
       padding-right: 16px;
@@ -55,7 +55,6 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
-      padding-top: 4px;
     }
 
     .date-big {
@@ -303,7 +302,6 @@
       color: var(--accent);
     }
 
-    /* Модальне вікно (Sheet) */
     .sheet-wrap {
       position: fixed;
       inset: 0;
@@ -456,28 +454,28 @@ const S = {
   tz: "Europe/Kyiv"
 };
 
-// БЕЗПЕЧНИЙ ПАРСЕР ДАТ ДЛЯ SAFARI (iOS)
+// Безпечне форматування дат без виклику помилок Safari WebKit
+function todayKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function parseYMD(str) {
   if (!str) return new Date();
-  const parts = str.split('-');
-  return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-}
-
-function formatDateKey(dt) {
-  const y = dt.getFullYear();
-  const m = String(dt.getMonth() + 1).padStart(2, '0');
-  const d = String(dt.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-function todayKey() {
-  return formatDateKey(new Date());
+  const p = str.split('-');
+  return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]) || 1);
 }
 
 function addDays(dStr, n) {
   const dt = parseYMD(dStr);
   dt.setDate(dt.getDate() + n);
-  return formatDateKey(dt);
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 function remLabel(m) {
@@ -488,13 +486,28 @@ function remLabel(m) {
 
 async function api(action, body = {}) {
   if (DEMO) return demoApi(action, body);
+  
+  // Кодуємо x-init-data для сумісності із вимогами HTTP заголовків Safari
+  const safeInitHeader = initData ? encodeURI(initData) : "";
+  
   const r = await fetch("/api", {
     method: "POST",
-    headers: { "x-init-data": initData, "content-type": "application/json" },
+    headers: { 
+      "x-init-data": safeInitHeader, 
+      "content-type": "application/json" 
+    },
     body: JSON.stringify({ action, ...body }),
   });
-  const j = await r.json();
-  if (!r.ok) throw new Error(j.message || j.error || "Помилка сервера");
+  
+  const text = await r.text();
+  let j;
+  try {
+    j = JSON.parse(text);
+  } catch (err) {
+    throw new Error("Сервер повернув недійсну відповідь");
+  }
+  
+  if (!r.ok) throw new Error(j.message || j.error || ("Помилка " + r.status));
   return j;
 }
 
@@ -534,8 +547,10 @@ function render() {
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
-      const key = formatDateKey(d);
-      weekDays.push({ key, day: d.getDate(), w: wNames[i] });
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      weekDays.push({ key: `${y}-${m}-${day}`, day: d.getDate(), w: wNames[i] });
     }
 
     app.innerHTML = `
