@@ -436,8 +436,8 @@
 <div id="app"></div>
 
 <script>
-const tg = window.Telegram.WebApp;
-const initData = tg ? tg.initData : "";
+const tg = window.Telegram ? window.Telegram.WebApp : null;
+const rawInitData = tg ? (tg.initData || "") : "";
 const DEMO = window.location.hash === "#demo";
 
 const $ = (s) => document.querySelector(s);
@@ -454,13 +454,12 @@ const S = {
   tz: "Europe/Kyiv"
 };
 
-// Безпечне форматування дат без виклику помилок Safari WebKit
-function todayKey() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+// Безпечні функції роботи з датами для iOS Safari
+function formatDateKey(dt) {
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return y + "-" + m + "-" + d;
 }
 
 function parseYMD(str) {
@@ -469,13 +468,14 @@ function parseYMD(str) {
   return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]) || 1);
 }
 
+function todayKey() {
+  return formatDateKey(new Date());
+}
+
 function addDays(dStr, n) {
   const dt = parseYMD(dStr);
   dt.setDate(dt.getDate() + n);
-  const y = dt.getFullYear();
-  const m = String(dt.getMonth() + 1).padStart(2, '0');
-  const d = String(dt.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+  return formatDateKey(dt);
 }
 
 function remLabel(m) {
@@ -487,13 +487,18 @@ function remLabel(m) {
 async function api(action, body = {}) {
   if (DEMO) return demoApi(action, body);
   
-  // Кодуємо x-init-data для сумісності із вимогами HTTP заголовків Safari
-  const safeInitHeader = initData ? encodeURI(initData) : "";
-  
+  // Безпечно очищаємо/перетворюємо initData для використання в HTTP-заголовках у Safari
+  let safeHeader = "";
+  try {
+    safeHeader = encodeURI(rawInitData);
+  } catch (e) {
+    safeHeader = "";
+  }
+
   const r = await fetch("/api", {
     method: "POST",
     headers: { 
-      "x-init-data": safeInitHeader, 
+      "x-init-data": safeHeader, 
       "content-type": "application/json" 
     },
     body: JSON.stringify({ action, ...body }),
@@ -512,11 +517,13 @@ async function api(action, body = {}) {
 }
 
 function errText(e) { return e.message || String(e); }
-function toast(m) { if (tg.showAlert) tg.showAlert(m); else alert(m); }
-function buzz(t = "light") { if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t); }
+function toast(m) { if (tg && tg.showAlert) tg.showAlert(m); else alert(m); }
+function buzz(t = "light") { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t); }
 
 function render() {
   const app = $("#app");
+  if (!app) return;
+
   if (S.sheet) {
     app.innerHTML = `<div class="sheet-wrap"><form id="f" class="sheet">
       <div class="sheet-title">Нова подія</div>
@@ -547,10 +554,8 @@ function render() {
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      weekDays.push({ key: `${y}-${m}-${day}`, day: d.getDate(), w: wNames[i] });
+      const key = formatDateKey(d);
+      weekDays.push({ key, day: d.getDate(), w: wNames[i] });
     }
 
     app.innerHTML = `
@@ -734,9 +739,11 @@ function applyTheme() {
 }
 
 async function start() {
-  if (tg) { tg.ready(); tg.expand(); applyTheme(); tg.onEvent && tg.onEvent("themeChanged", applyTheme); }
+  if (tg) { 
+    try { tg.ready(); tg.expand(); applyTheme(); if (tg.onEvent) tg.onEvent("themeChanged", applyTheme); } catch (e) {}
+  }
   const app = $("#app");
-  if (!initData && !DEMO) {
+  if (!rawInitData && !DEMO) {
     app.innerHTML = `<div class="fatal"><b>Відкрийте застосунок із Telegram</b><br><br>Натисніть кнопку «Застосунок» біля поля вводу в чаті з ботом або напишіть боту <code>/app</code>.</div>`;
     return;
   }
