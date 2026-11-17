@@ -1,347 +1,258 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="color-scheme" content="light dark">
-<title>Календар і бот</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-:root {
-  --bg: #f5f3f6;
-  --surface: #ffffff;
-  --ink: #1e1a22;
-  --muted: #6f6676;
-  --line: #e6e1e9;
-  --accent: #8e2f5c;
-  --accent-ink: #ffffff;
-  --accent-soft: #f3dde8;
-  --amber: #a86a0f;
-  --amber-soft: #f8ecd2;
-  --danger: #b3261e;
-  --shadow: 0 1px 2px rgba(30, 26, 34, .06), 0 8px 24px rgba(30, 26, 34, .06);
-  --r-lg: 20px;
-  --r-md: 14px;
-  --r-sm: 10px;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #141116; --surface: #1e1a22; --ink: #f1ecf4; --muted: #a298ab; --line: #2d2733;
-    --accent: #e58ab4; --accent-ink: #2a0f1d; --accent-soft: #3a2231;
-    --amber: #e2b04a; --amber-soft: #38301c; --danger: #ff8a80;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #141116; --surface: #1e1a22; --ink: #f1ecf4; --muted: #a298ab; --line: #2d2733;
-  --accent: #e58ab4; --accent-ink: #2a0f1d; --accent-soft: #3a2231;
-  --amber: #e2b04a; --amber-soft: #38301c; --danger: #ff8a80;
-  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
-}
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; background: var(--bg); color: var(--ink); }
-body {
-  font-family: "Onest", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 15px; line-height: 1.45; min-height: 100dvh;
-  -webkit-font-smoothing: antialiased; overscroll-behavior: none;
-}
-button, input, select, textarea { font: inherit; color: inherit; }
-button { cursor: pointer; border: 0; background: none; padding: 0; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
-.num { font-variant-numeric: tabular-nums; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+  <title>KOLOVRAT BOT</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-sec: #f4f4f7;
+      --accent: #8e24aa; /* Фіолетовий колір як на скріншоті */
+      --text: #000000;
+      --text-sec: #757575;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
 
-#app { max-width: 560px; margin: 0 auto; padding: 16px 16px calc(92px + env(safe-area-inset-bottom)); }
-.hidden { display: none !important; }
+    [data-theme="dark"] {
+      --bg: #1c1c1e;
+      --bg-sec: #2c2c2e;
+      --text: #ffffff;
+      --text-sec: #a1a1a2;
+    }
 
-/* ---------- Календар: дата дня ---------- */
-.dayhead { display: flex; align-items: flex-end; gap: 14px; padding: 8px 4px 14px; }
-.bigday { font-size: 72px; line-height: .86; font-weight: 800; letter-spacing: -.04em; color: var(--accent); }
-.daymeta { flex: 1; min-width: 0; padding-bottom: 4px; }
-.daymeta .wd { font-size: 22px; font-weight: 700; letter-spacing: -.01em; text-transform: capitalize; }
-.daymeta .mo { color: var(--muted); font-size: 14px; }
-.addbtn {
-  display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 16px;
-  background: var(--accent); color: var(--accent-ink); border-radius: 999px; font-weight: 600;
-  box-shadow: var(--shadow);
-}
-.addbtn svg { width: 16px; height: 16px; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
 
-/* ---------- Тиждень ---------- */
-.week { display: grid; grid-template-columns: 32px repeat(7, 1fr) 32px; align-items: center; gap: 2px; margin-bottom: 18px; }
-.navbtn { height: 52px; color: var(--muted); display: grid; place-items: center; border-radius: 10px; }
-.navbtn svg { width: 18px; height: 18px; }
-.day { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 7px; border-radius: var(--r-md); min-height: 64px; }
-.day .w { font-size: 12px; color: var(--muted); text-transform: lowercase; }
-.day .d { font-size: 17px; font-weight: 600; }
-.day .dots { display: flex; gap: 3px; height: 6px; margin-top: 3px; }
-.day .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-.day .dots i.p { background: none; border: 1.5px solid var(--amber); width: 6px; height: 6px; }
-.day.today .d { color: var(--accent); }
-.day.sel { background: var(--accent); }
-.day.sel .w, .day.sel .d { color: var(--accent-ink); }
-.day.sel .dots i { background: var(--accent-ink); }
-.day.sel .dots i.p { background: none; border-color: var(--accent-ink); }
+    /* ФІКС ДЛЯ IPHONE (NOTCH) */
+    #app {
+      padding-top: var(--safe-top);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+    }
 
-/* ---------- Блоки ---------- */
-.block { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 6px 16px; margin-bottom: 16px; }
-.block h2 { font-size: 13px; font-weight: 600; color: var(--muted); margin: 12px 0 4px; }
-.pend { border: 1.5px dashed var(--amber); background: var(--amber-soft); box-shadow: none; padding: 12px 14px; }
-.pend h2 { color: var(--amber); margin: 0 0 8px; }
-.pitem { padding: 10px 0; border-top: 1px solid color-mix(in srgb, var(--amber) 25%, transparent); }
-.pitem:first-of-type { border-top: 0; padding-top: 2px; }
-.pitem .t { font-weight: 600; }
-.pitem .s { color: var(--muted); font-size: 13px; margin-top: 1px; }
-.pitem .acts { display: flex; gap: 8px; margin-top: 10px; }
-.btn { height: 38px; padding: 0 16px; border-radius: 999px; font-weight: 600; font-size: 14px; background: var(--accent); color: var(--accent-ink); }
-.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
-.btn.danger { color: var(--danger); }
+    .header {
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-/* ---------- Стрічка подій ---------- */
-.tl { list-style: none; margin: 0; padding: 0; }
-.evw { border-top: 1px solid var(--line); }
-.tl > li:first-child .evw { border-top: 0; }
-.ev { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 14px 0; text-align: left; width: 100%; }
-.ev .tm { font-size: 20px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
-.ev .du { color: var(--muted); font-size: 12px; margin-top: 3px; }
-.ev .ti { font-weight: 600; font-size: 16px; line-height: 1.3; }
-.ev .me { color: var(--muted); font-size: 13px; margin-top: 2px; }
-.ev.past .tm, .ev.past .ti { color: var(--muted); }
-.more { display: none; padding: 0 0 14px 76px; }
-.open .more { display: block; }
-.more p { margin: 0 0 10px; color: var(--ink); font-size: 14px; white-space: pre-wrap; }
-.now { display: flex; align-items: center; gap: 8px; color: var(--accent); font-size: 12px; font-weight: 600; padding: 2px 0; }
-.now::after { content: ""; flex: 1; height: 1.5px; background: var(--accent); opacity: .5; }
-.empty { text-align: center; padding: 28px 8px 30px; color: var(--muted); }
-.empty b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 4px; }
+    .tabs {
+      display: flex;
+      background: var(--bg-sec);
+      margin: 10px 16px;
+      padding: 4px;
+      border-radius: 12px;
+      margin-top: auto; /* Притискаємо до низу */
+      margin-bottom: calc(16px + var(--safe-bottom));
+    }
 
-/* ---------- Керування ---------- */
-.stat { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
-.stat:first-of-type { border-top: 0; }
-.stat span:first-child { color: var(--muted); }
-.stat span:last-child { font-weight: 600; text-align: right; }
-.search { width: 100%; height: 44px; border-radius: var(--r-md); border: 1.5px solid var(--line); background: var(--surface); padding: 0 14px; margin: 4px 0 12px; }
-.search:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
-.chat { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
-.chat:first-child { border-top: 0; }
-.av { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; flex: none; }
-.chat .nm { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.chips { display: flex; gap: 6px; flex: none; }
-.chip { height: 34px; padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--muted); box-shadow: inset 0 0 0 1.5px var(--line); transition: background .15s, color .15s; }
-.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
-.hint { color: var(--muted); font-size: 13px; margin: 0 4px 12px; }
+    .tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: none;
+      color: var(--text-sec);
+      font-weight: 600;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
 
-/* ---------- Нижня панель ---------- */
-.tabbar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; justify-content: center;
-  padding: 8px 16px calc(10px + env(safe-area-inset-bottom));
-  background: linear-gradient(to top, var(--bg) 70%, transparent);
-}
-.tabs { display: flex; gap: 4px; padding: 4px; background: var(--surface); border-radius: 999px; box-shadow: var(--shadow); width: 100%; max-width: 360px; }
-.tab { flex: 1; height: 44px; border-radius: 999px; font-weight: 600; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 8px; }
-.tab svg { width: 18px; height: 18px; }
-.tab[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
+    .tab.active {
+      background: var(--bg);
+      color: var(--accent);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
 
-/* ---------- Форма ---------- */
-.sheet-wrap { position: fixed; inset: 0; z-index: 10; display: flex; align-items: flex-end; justify-content: center; background: rgba(10, 6, 12, .5); }
-.sheet { width: 100%; max-width: 560px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 18px 18px calc(20px + env(safe-area-inset-bottom)); max-height: 92dvh; overflow: auto; animation: up .22s ease-out; }
-@keyframes up { from { transform: translateY(30px); opacity: .4; } to { transform: none; opacity: 1; } }
-.sheet h3 { margin: 0 0 14px; font-size: 20px; letter-spacing: -.01em; }
-.field { display: block; margin-bottom: 12px; }
-.field > span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; }
-.inp { width: 100%; height: 46px; border-radius: var(--r-md); border: 1.5px solid var(--line); background: var(--bg); padding: 0 12px; }
-textarea.inp { height: 72px; padding: 10px 12px; resize: none; }
-.inp:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
-.row2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 10px; }
-.opts { display: flex; flex-wrap: wrap; gap: 6px; }
-.opts .chip { height: 36px; }
-.sheet .acts { display: flex; gap: 10px; margin-top: 16px; }
-.sheet .acts .btn { flex: 1; height: 48px; font-size: 16px; }
-.err { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 1em; }
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 15px;
+    }
 
-.toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 20; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; max-width: 90vw; }
-.fatal { padding: 40px 12px; text-align: center; color: var(--muted); }
-.fatal b { display: block; color: var(--ink); font-size: 18px; margin-bottom: 6px; }
-.fatal code { background: var(--surface); padding: 2px 6px; border-radius: 6px; font-size: 13px; }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-</style>
+    .btn.ghost { background: var(--bg-sec); color: var(--text); }
+
+    .sheet-wrap {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .sheet {
+      background: var(--bg);
+      width: 100%;
+      border-radius: 20px 20px 0 0;
+      padding: 20px;
+      padding-bottom: calc(30px + var(--safe-bottom));
+      box-sizing: border-box;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .field { display: block; margin-bottom: 16px; }
+    .field span { display: block; font-size: 14px; color: var(--text-sec); margin-bottom: 6px; }
+    .inp {
+      width: 100%;
+      background: var(--bg-sec);
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      color: var(--text);
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    .chip {
+      padding: 8px 16px;
+      border-radius: 15px;
+      background: var(--bg-sec);
+      border: 1px solid transparent;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .chip[aria-pressed="true"] {
+      background: #fce4ec;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .opts { display: flex; gap: 8px; flex-wrap: wrap; }
+    .acts { display: flex; gap: 12px; margin-top: 20px; }
+    .fatal { padding: 40px; text-align: center; }
+  </style>
 </head>
 <body>
-<div id="app"><div class="fatal">Завантаження…</div></div>
+
+<div id="app"></div>
 
 <script>
-// Адреса вашої функції в Supabase (заглядає у Edge Functions → telegram-webhook). Закінчується на /api.
-const API_URL = "https://hwfjgaxtifypxseyyhee.supabase.co/functions/v1/telegram-webhook/api";
+const tg = window.Telegram.WebApp;
+const initData = tg.initData;
+const DEMO = window.location.hash === "#demo";
 
-const tg = window.Telegram && window.Telegram.WebApp;
-const initData = (tg && tg.initData) || "";
-const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
 const S = {
-  tz: "Europe/Kyiv", tab: "cal", events: [], chats: null, q: "", ai: null, editor: false, hub: [],
-  sel: null, openId: null, sheet: false, loadingChats: false,
+  tab: "cal",
+  sel: null,
+  openId: null,
+  sheet: false,
+  chats: null,
+  events: [],
+  q: "",
+  tz: "Europe/Kyiv"
 };
 
-// ---------- утиліти ----------
-const $ = (s, r = document) => r.querySelector(s);
-const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const buzz = (t = "light") => { try { tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred(t); } catch (_) {} };
-let toastTimer;
-function toast(t) {
-  let el = $(".toast");
-  if (!el) { el = document.createElement("div"); el.className = "toast"; el.setAttribute("role", "status"); document.body.appendChild(el); }
-  el.textContent = t; clearTimeout(toastTimer); toastTimer = setTimeout(() => el.remove(), 2600);
-}
-
-const fmtKey = () => new Intl.DateTimeFormat("sv-SE", { timeZone: S.tz });
-const dayKey = (d) => fmtKey().format(new Date(d));
-const noon = (k) => new Date(k + "T12:00:00Z");
-const addDays = (k, n) => { const d = noon(k); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
-const monIdx = (k) => (noon(k).getUTCDay() + 6) % 7;
-const timeStr = (iso) => new Intl.DateTimeFormat("uk-UA", { timeZone: S.tz, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso));
-const todayKey = () => dayKey(Date.now());
-const WD_SHORT = ["пн", "вт", "ср", "чт", "пт", "сб", "нд"];
-const longDate = (iso) => new Intl.DateTimeFormat("uk-UA", { timeZone: S.tz, weekday: "short", day: "numeric", month: "long" }).format(new Date(iso));
-const durLabel = (e) => {
-  const m = Math.round((new Date(e.end_at) - new Date(e.start_at)) / 60000);
-  if (!(m > 0)) return "";
-  return m < 60 ? `${m} хв` : m % 60 ? `${Math.floor(m / 60)} г ${m % 60} хв` : `${m / 60} г`;
-};
-const remLabel = (m) => (m == null ? "" : m >= 1440 ? "за добу" : m >= 60 ? `за ${m / 60} г` : m === 0 ? "в момент події" : `за ${m} хв`);
-
-// ---------- API ----------
 async function api(action, body = {}) {
   if (DEMO) return demoApi(action, body);
-  const r = await fetch(API_URL, {
+  const r = await fetch("/api", {
     method: "POST",
-    headers: { "content-type": "application/json", "x-init-data": initData },
+    headers: { "x-init-data": initData, "content-type": "application/json" },
     body: JSON.stringify({ action, ...body }),
   });
-  let j = {};
-  try { j = await r.json(); } catch (_) {}
-  if (!r.ok) { const e = new Error(j.error || "http"); e.code = j.error; e.status = r.status; e.detail = j.message; throw e; }
-  return j;
-}
-function errText(e) {
-  if (e.code === "not_owner") return "Застосунок відкривається лише для власника акаунта, до якого підключено бота.";
-  if (e.code === "auth") return "Не вдалося перевірити вхід. Закрийте застосунок і відкрийте його знову з чату з ботом.";
-  if (e.code === "db") return "Не вдалося зберегти. Перевірте, що таблиці в Supabase створено." + (e.detail ? " (" + e.detail + ")" : "");
-  return "Немає зв'язку з ботом. Перевірте інтернет і спробуйте ще раз.";
+  if (!r.ok) throw new Error("Помилка сервера");
+  return r.json();
 }
 
-// ---------- відмальовування ----------
-const ICON = {
-  plus: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>',
-  prev: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3 5 9l6 6"/></svg>',
-  next: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 3 6 6-6 6"/></svg>',
-  cal: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="13" height="12" rx="3"/><path d="M2.5 7.5h13M6 2v3M12 2v3"/></svg>',
-  bot: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="12" height="9" rx="3"/><path d="M9 2.5v3M6.5 10h.01M11.5 10h.01"/></svg>',
-};
+function todayKey() { return new Date().toLocaleString("sv-SE", {timeZone: S.tz}).slice(0, 10); }
+function addDays(d, n) { 
+  const date = new Date(d); 
+  date.setDate(date.getDate() + n); 
+  return date.toISOString().split("T")[0]; 
+}
+function remLabel(m) { 
+  if (m < 60) return m + " хв";
+  if (m < 1440) return (m/60) + " год";
+  return (m/1440) + " дн";
+}
+
+function buzz(t = "light") { tg.HapticFeedback.impactOccurred(t); }
+function toast(m) { tg.showAlert ? tg.showAlert(m) : alert(m); }
+function errText(e) { return e.message || "Невідома помилка"; }
 
 function render() {
   const app = $("#app");
-  app.innerHTML = (S.tab === "cal" ? viewCal() : viewBot()) + tabbar() + (S.sheet ? sheet() : "");
-  bind();
-}
-
-function tabbar() {
-  return `<nav class="tabbar"><div class="tabs" role="tablist">
-    <button class="tab" role="tab" data-tab="cal" aria-selected="${S.tab === "cal"}">${ICON.cal}Календар</button>
-    <button class="tab" role="tab" data-tab="bot" aria-selected="${S.tab === "bot"}">${ICON.bot}Бот</button>
-  </div></nav>`;
-}
-
-function viewCal() {
-  const today = todayKey();
-  const sel = S.sel;
-  const start = addDays(sel, -monIdx(sel));
-  const byDay = {};
-  for (const e of S.events) (byDay[dayKey(e.start_at)] ||= []).push(e);
-  const d = noon(sel);
-  const wd = new Intl.DateTimeFormat("uk-UA", { timeZone: "UTC", weekday: "long" }).format(d);
-  const mo = new Intl.DateTimeFormat("uk-UA", { timeZone: "UTC", month: "long", year: "numeric" }).format(d);
-
-  let week = `<button class="navbtn" data-wk="-1" aria-label="Попередній тиждень">${ICON.prev}</button>`;
-  for (let i = 0; i < 7; i++) {
-    const k = addDays(start, i), list = byDay[k] || [];
-    const dots = list.slice(0, 3).map((e) => `<i class="${e.status === "pending" ? "p" : ""}"></i>`).join("");
-    week += `<button class="day${k === sel ? " sel" : ""}${k === today ? " today" : ""}" data-day="${k}" aria-label="${k}" aria-pressed="${k === sel}">
-      <span class="w">${WD_SHORT[i]}</span><span class="d num">${+k.slice(8)}</span><span class="dots">${dots}</span></button>`;
-  }
-  week += `<button class="navbtn" data-wk="1" aria-label="Наступний тиждень">${ICON.next}</button>`;
-
-  const pend = S.events.filter((e) => e.status === "pending" && new Date(e.start_at) > Date.now() - 3600e3);
-  const pendHtml = pend.length ? `<section class="block pend" aria-label="Плани з чатів"><h2>Знайшов у чатах: ${pend.length}</h2>${pend.map((e) => `
-    <div class="pitem"><div class="t">${esc(e.title)}</div>
-    <div class="s">${esc(longDate(e.start_at))}, ${timeStr(e.start_at)}${e.source_name ? " · " + esc(e.source_name) : ""}</div>
-    <div class="acts"><button class="btn" data-ok="${e.id}">Додати</button><button class="btn ghost" data-no="${e.id}">Пропустити</button></div></div>`).join("")}</section>` : "";
-
-  const day = (byDay[sel] || []).filter((e) => e.status === "confirmed");
-  let list = "";
-  if (!day.length) {
-    list = `<div class="empty"><b>Вільний день</b>Додайте подію або напишіть про неї в чаті, бот сам її знайде.</div>`;
-  } else {
-    const nowMs = Date.now();
-    let marked = sel !== today;
-    list = `<ul class="tl">` + day.map((e) => {
-      let mark = "";
-      if (!marked && new Date(e.start_at) > nowMs) { marked = true; mark = `<li class="now" aria-label="Зараз">зараз</li>`; }
-      const past = new Date(e.end_at) < nowMs;
-      const open = S.openId === e.id;
-      const meta = [e.source_name && e.source_name !== "Застосунок" ? "з чату " + e.source_name : "", e.remind_min != null ? "нагадаю " + remLabel(e.remind_min) : ""].filter(Boolean).join(", ");
-      return mark + `<li><div class="evw${open ? " open" : ""}"><button class="ev${past ? " past" : ""}" data-ev="${e.id}" aria-expanded="${open}">
-        <div><div class="tm num">${timeStr(e.start_at)}</div><div class="du">${esc(durLabel(e))}</div></div>
-        <div><div class="ti">${esc(e.title)}</div>${meta ? `<div class="me">${esc(meta)}</div>` : ""}</div></button>
-        <div class="more">${e.notes ? `<p>${esc(e.notes)}</p>` : ""}<button class="btn ghost danger" data-del="${e.id}">Видалити</button></div></div></li>`;
-    }).join("");
-    if (!marked && sel === today) list += `<li class="now" aria-label="Зараз">зараз</li>`;
-    list += `</ul>`;
-  }
-
-  return `<header class="dayhead"><div class="bigday num">${+sel.slice(8)}</div>
-    <div class="daymeta"><div class="wd">${esc(wd)}</div><div class="mo">${esc(mo)}</div></div>
-    <button class="addbtn" data-add>${ICON.plus}Подія</button></header>
-    <div class="week">${week}</div>${pendHtml}<section class="block" aria-label="Події дня">${list}</section>`;
-}
-
-function viewBot() {
-  const chats = S.chats;
-  let rows = "";
-  if (chats === null) rows = `<div class="empty">Завантаження…</div>`;
-  else if (!chats.length) rows = `<div class="empty"><b>${S.q ? "Нікого не знайдено" : "Поки немає чатів"}</b>${S.q ? "Перевірте написання імені." : "Бот бачить лише тих, хто написав вам після підключення."}</div>`;
-  else rows = chats.map((c) => `<div class="chat"><div class="av">${esc((c.name || "?").trim().charAt(0).toUpperCase())}</div>
-    <div class="nm">${esc(c.name)}</div><div class="chips">
-    <button class="chip" data-t="flirt" data-id="${c.chat_id}" aria-pressed="${!!c.flirt}">Флірт</button>
-    <button class="chip" data-t="mood" data-id="${c.chat_id}" aria-pressed="${!!c.mood}">Настрій</button></div></div>`).join("");
-  return `<header class="dayhead"><div class="daymeta"><div class="wd" style="font-size:28px;font-weight:800;letter-spacing:-.02em">Бот</div>
-    <div class="mo">Що бот робить у чатах</div></div></header>
-    <section class="block" aria-label="Стан">
-      <div class="stat"><span>Нейромережа</span><span>${esc(S.ai || "не підключено")}${S.editor ? " + редактор" : ""}</span></div>
-      <div class="stat"><span>Група з темами</span><span>${S.hub.length ? "створена" : "не створена (/hub)"}</span></div>
-      <div class="stat"><span>Пошук планів</span><span>у всіх чатах</span></div></section>
-    <p class="hint">Флірт підказує відповіді, настрій аналізує співрозмовника. Вмикайте для окремих чатів.</p>
-    <input class="search" id="q" type="search" placeholder="Знайти чат за іменем" value="${esc(S.q)}" aria-label="Знайти чат за іменем" autocomplete="off">
-    <section class="block" aria-label="Чати">${rows}</section>`;
-}
-
-function sheet() {
-  const sel = S.sel, now = new Date();
-  const hh = sel === todayKey() ? String((+timeStr(now.toISOString()).slice(0, 2) + 1) % 24).padStart(2, "0") + ":00" : "12:00";
-  return `<div class="sheet-wrap" data-close><form class="sheet" id="f" role="dialog" aria-label="Нова подія">
-    <h3>Нова подія</h3>
-    <label class="field"><span>Назва</span><input class="inp" name="title" maxlength="200" required placeholder="Наприклад, кава з Катею" autocomplete="off"></label>
-    <div class="row2"><label class="field"><span>Дата</span><input class="inp" type="date" name="date" value="${sel}" required></label>
-    <label class="field"><span>Час</span><input class="inp num" type="time" name="time" value="${hh}" required></label></div>
-    <div class="field"><span>Тривалість</span><div class="opts" data-group="dur">${[30, 60, 120, 240].map((m, i) => `<button type="button" class="chip" data-v="${m}" aria-pressed="${i === 1}">${m < 60 ? m + " хв" : m / 60 + " г"}</button>`).join("")}</div></div>
+  if (S.sheet) {
+    app.innerHTML = `<div class="sheet-wrap"><form id="f" class="sheet">
+    <label class="field"><span>Назва події</span><input class="inp" name="title" placeholder="Що плануємо?" autofocus></label>
+    <div style="display:flex; gap:12px">
+      <label class="field" style="flex:1"><span>Дата</span><input class="inp" type="date" name="date" value="${S.sel}"></label>
+      <label class="field" style="flex:1"><span>Час</span><input class="inp" type="time" name="time" value="12:00"></label>
+    </div>
+    <div class="field"><span>Тривалість</span><div class="opts" data-group="dur">${[30, 60, 90, 120].map((m, i) => `<button type="button" class="chip" data-v="${m}" aria-pressed="${i === 1}">${m} хв</button>`).join("")}</div></div>
     <div class="field"><span>Нагадати</span><div class="opts" data-group="rem">${[10, 30, 60, 1440].map((m, i) => `<button type="button" class="chip" data-v="${m}" aria-pressed="${i === 1}">${remLabel(m)}</button>`).join("")}</div></div>
     <label class="field"><span>Нотатка</span><textarea class="inp" name="notes" maxlength="500" placeholder="Місце, деталі"></textarea></label>
     <div class="err" id="err" role="alert"></div>
     <div class="acts"><button type="button" class="btn ghost" data-cancel>Скасувати</button><button class="btn" type="submit">Додати подію</button></div></form></div>`;
+  } else {
+    const evs = S.events.filter(e => e.start_at.startsWith(S.sel) && e.status !== 'dismissed');
+    
+    app.innerHTML = `
+      <div class="header">
+        <div>
+          <div style="font-size: 24px; font-weight: 800;">${new Date(S.sel).toLocaleDateString('uk-UA', {weekday:'long'})}</div>
+          <div style="color: var(--text-sec)">${new Date(S.sel).toLocaleDateString('uk-UA', {day:'numeric', month:'long'})}</div>
+        </div>
+        <button class="btn" data-add style="border-radius: 50%; width: 44px; height: 44px; padding:0">+</button>
+      </div>
+
+      <div style="padding: 0 16px; display: flex; gap: 8px; overflow-x: auto; margin-bottom: 20px;">
+        ${[-1, 0, 1, 2, 3, 4, 5].map(i => {
+          const d = addDays(todayKey(), i);
+          const isSel = d === S.sel;
+          return `<button class="chip" data-day="${d}" aria-pressed="${isSel}">${new Date(d).toLocaleDateString('uk-UA', {day:'numeric'})}</button>`;
+        }).join('')}
+      </div>
+
+      <div style="flex: 1; padding: 0 16px;">
+        ${evs.length ? evs.map(e => `
+          <div class="field" style="background: var(--bg-sec); padding: 12px; border-radius: 12px;" data-ev="${e.id}">
+            <div style="font-weight: bold;">${esc(e.title)}</div>
+            <div style="font-size: 13px; color: var(--text-sec);">${e.start_at.slice(11,16)}</div>
+            ${S.openId === e.id ? `<div class="acts"><button class="btn ghost" data-del="${e.id}">Видалити</button></div>` : ''}
+          </div>
+        `).join('') : `
+          <div style="text-align: center; margin-top: 50px; color: var(--text-sec);">
+            <b>Вільний день</b><br>Додайте подію або напишіть про неї в чаті.
+          </div>
+        `}
+      </div>
+
+      <div class="tabs">
+        <button class="tab ${S.tab==='cal'?'active':''}" data-tab="cal">📅 Календар</button>
+        <button class="tab ${S.tab==='bot'?'active':''}" data-tab="bot">🤖 Бот</button>
+      </div>
+    `;
+  }
+  bind();
 }
 
-// ---------- події ----------
+// ---------- події (Ваш код з GitHub) ----------
 function bind() {
   document.querySelectorAll("[data-tab]").forEach((b) => b.onclick = () => { S.tab = b.dataset.tab; buzz(); render(); if (S.tab === "bot" && S.chats === null) loadChats(); });
   document.querySelectorAll("[data-day]").forEach((b) => b.onclick = () => { S.sel = b.dataset.day; S.openId = null; buzz(); render(); });
@@ -395,18 +306,12 @@ async function loadChats(keepFocus) {
   try {
     const j = await api("chats", { q: S.q });
     S.chats = j.chats;
-    if (S.tab === "bot") {
-      const had = document.activeElement && document.activeElement.id === "q";
-      const pos = had ? $("#q").selectionStart : 0;
-      render();
-      if (had) { const q = $("#q"); q.focus(); q.setSelectionRange(pos, pos); }
-    }
+    if (S.tab === "bot") { render(); }
   } catch (e) { S.chats = []; toast(errText(e)); if (S.tab === "bot") render(); }
 }
 
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
-// ---------- демо-режим (без Telegram): сторінка/#demo ----------
 function demoApi(action, body) {
   const now = Date.now();
   const mk = (id, title, dh, dur, status, extra = {}) => ({ id, title, start_at: new Date(now + dh * 3600e3).toISOString(), end_at: new Date(now + (dh * 60 + dur) * 60e3).toISOString(), notes: null, source_name: null, remind_min: 30, status, ...extra });
@@ -423,20 +328,17 @@ function demoApi(action, body) {
   return Promise.resolve({ ok: true, events: D.events });
 }
 
-// ---------- старт ----------
 function applyTheme() {
   if (!tg) return;
   const light = tg.colorScheme === "light";
   document.documentElement.dataset.theme = light ? "light" : "dark";
-  const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
-  try { tg.setHeaderColor(bg); tg.setBackgroundColor(bg); } catch (_) {}
 }
 
 async function start() {
-  if (tg) { tg.ready(); tg.expand(); applyTheme(); tg.onEvent && tg.onEvent("themeChanged", applyTheme); }
+  tg.ready(); tg.expand(); applyTheme();
   const app = $("#app");
   if (!initData && !DEMO) {
-    app.innerHTML = `<div class="fatal"><b>Відкрийте застосунок із Telegram</b>Натисніть кнопку «Застосунок» біля поля вводу в чаті з ботом або напишіть боту <code>/app</code>.</div>`;
+    app.innerHTML = `<div class="fatal"><b>Відкрийте застосунок із Telegram</b></div>`;
     return;
   }
   try {
@@ -445,7 +347,7 @@ async function start() {
     S.sel = todayKey();
     render();
   } catch (e) {
-    app.innerHTML = `<div class="fatal"><b>Не вдалося відкрити</b>${esc(errText(e))}</div>`;
+    app.innerHTML = `<div class="fatal"><b>Не вдалося відкрити</b></div>`;
   }
 }
 start();
