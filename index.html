@@ -10,6 +10,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
+  /* Додайте це до ваших існуючих стилів */
+  :root {
+    --safe-area-top: env(safe-area-inset-top);
+  }
+
+  /* Додайте цей відступ для головного контейнера */
+  body {
+    padding-top: var(--safe-area-top);
+    /* Щоб фон зафарбовував область під "острівцем" */
+    background-color: var(--bg); 
+  }
+
+  /* Якщо у вас є верхня панель (header), додайте це */
+  .header, .sheet-wrap {
+    padding-top: var(--safe-area-top);
+  }
 :root {
   --bg: #f5f3f6;
   --surface: #ffffff;
