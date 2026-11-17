@@ -7,124 +7,430 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg: #ffffff;
-      --bg-sec: #f4f4f7;
+      --bg: #f8f8fa;
+      --card-bg: #ffffff;
       --accent: #8e24aa;
-      --text: #000000;
-      --text-sec: #757575;
+      --accent-light: #f3e5f5;
+      --text: #1c1c1e;
+      --text-sec: #8e8e93;
+      --border: #e5e5ea;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     [data-theme="dark"] {
-      --bg: #1c1c1e;
-      --bg-sec: #2c2c2e;
+      --bg: #000000;
+      --card-bg: #1c1c1e;
       --text: #ffffff;
-      --text-sec: #a1a1a2;
+      --text-sec: #8e8e93;
+      --border: #2c2c2e;
+      --accent-light: #3a1c40;
     }
 
     html, body {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
-      background-color: var(--bg);
+      background: var(--bg);
       color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
       overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
-    /* ВІДСТУП ДЛЯ IPHONE (DYNAMC ISLAND / NOTCH) */
+    /* Відступ під виріз iPhone */
     #app {
-      padding-top: max(var(--safe-top), 16px);
-      padding-bottom: calc(20px + var(--safe-bottom));
+      padding-top: max(var(--safe-top), 20px);
+      padding-bottom: calc(80px + var(--safe-bottom));
       padding-left: 16px;
       padding-right: 16px;
       min-height: 100vh;
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
     }
 
-    .field { display: block; margin-bottom: 12px; }
-    .field span { display: block; font-size: 13px; color: var(--text-sec); margin-bottom: 4px; }
-    
-    .inp {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid var(--bg-sec);
-      background: var(--bg-sec);
-      border-radius: 10px;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-top: 4px;
+    }
+
+    .date-big {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .date-big .num {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1;
       color: var(--text);
-      font-size: 15px;
-      box-sizing: border-box;
-      outline: none;
     }
 
-    .opts { display: flex; gap: 6px; flex-wrap: wrap; }
-    
-    .chip {
-      padding: 8px 14px;
-      border-radius: 12px;
-      border: 1px solid transparent;
-      background: var(--bg-sec);
-      color: var(--text);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
+    .date-big .meta {
+      display: flex;
+      flex-direction: column;
     }
 
-    .chip[aria-pressed="true"] {
-      background: #fce4ec;
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .acts { display: flex; gap: 10px; margin-top: 20px; }
-    
-    .btn {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      background: var(--accent);
-      color: #ffffff;
+    .date-big .weekday {
+      font-size: 18px;
       font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
+      color: var(--text);
     }
 
-    .btn.ghost { background: var(--bg-sec); color: var(--text); }
-    
-    .fatal {
-      padding: 40px 20px;
-      text-align: center;
+    .date-big .month {
+      font-size: 13px;
       color: var(--text-sec);
     }
-    
-    .fatal b {
-      display: block;
-      font-size: 18px;
+
+    .btn-add {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(142, 36, 170, 0.3);
+    }
+
+    .btn-add:active {
+      transform: scale(0.96);
+    }
+
+    .week-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .days-list {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .day-chip {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 4px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
       color: var(--text);
+      cursor: pointer;
+    }
+
+    .day-chip .w {
+      font-size: 11px;
+      color: var(--text-sec);
+      margin-bottom: 2px;
+    }
+
+    .day-chip .d {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .day-chip.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .day-chip.active .w {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .nav-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .empty-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      margin-top: 10px;
+    }
+
+    .empty-card b {
+      font-size: 17px;
+      display: block;
       margin-bottom: 8px;
     }
 
+    .empty-card p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-sec);
+      line-height: 1.4;
+    }
+
+    .ev-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .ev-card.pending {
+      border-left: 4px solid var(--accent);
+    }
+
+    .ev-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ev-title {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .ev-time {
+      font-size: 13px;
+      color: var(--text-sec);
+      font-weight: 600;
+    }
+
+    .ev-notes {
+      font-size: 13px;
+      color: var(--text-sec);
+    }
+
+    .ev-src {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .ev-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn.ghost {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .btn.danger {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .btn.sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: calc(12px + var(--safe-bottom));
+      left: 16px;
+      right: 16px;
+      background: var(--card-bg);
+      border-radius: 30px;
+      padding: 5px;
+      display: flex;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      z-index: 90;
+    }
+
+    .nav-tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: none;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-sec);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .nav-tab.active {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    /* Модальне вікно (Sheet) */
     .sheet-wrap {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
       z-index: 100;
       display: flex;
       align-items: flex-end;
     }
 
-    .sheet-wrap form {
-      background: var(--bg);
+    .sheet {
+      background: var(--card-bg);
       width: 100%;
-      border-radius: 20px 20px 0 0;
+      border-radius: 24px 24px 0 0;
       padding: 20px;
       padding-bottom: calc(24px + var(--safe-bottom));
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 85vh;
+      overflow-y: auto;
     }
 
-    .err { color: #e53935; font-size: 13px; margin-top: 8px; }
+    .sheet-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field span {
+      font-size: 13px;
+      color: var(--text-sec);
+      font-weight: 600;
+    }
+
+    .inp {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .opts {
+      display: flex;
+      gap: 6px;
+    }
+
+    .chip {
+      flex: 1;
+      padding: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .chip[aria-pressed="true"] {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row .field {
+      flex: 1;
+    }
+
+    .acts {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .err {
+      color: #d32f2f;
+      font-size: 13px;
+    }
+
+    .chat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chat-item {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .chat-opts {
+      display: flex;
+      gap: 6px;
+    }
+
+    .fatal {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-sec);
+    }
   </style>
 </head>
 <body>
@@ -150,27 +456,28 @@ const S = {
   tz: "Europe/Kyiv"
 };
 
-async function api(action, body = {}) {
-  if (DEMO) return demoApi(action, body);
-  const r = await fetch("/api", {
-    method: "POST",
-    headers: { "x-init-data": initData, "content-type": "application/json" },
-    body: JSON.stringify({ action, ...body }),
-  });
-  const j = await r.json();
-  if (!r.ok) throw new Error(j.message || j.error || ("Помилка " + r.status));
-  return j;
+// БЕЗПЕЧНИЙ ПАРСЕР ДАТ ДЛЯ SAFARI (iOS)
+function parseYMD(str) {
+  if (!str) return new Date();
+  const parts = str.split('-');
+  return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
 }
 
-function errText(e) { return e.message || String(e); }
-function toast(m) { if (tg.showAlert) tg.showAlert(m); else alert(m); }
-function buzz(t = "light") { if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t); }
+function formatDateKey(dt) {
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
-function todayKey() { return new Date().toISOString().split("T")[0]; }
-function addDays(d, n) {
-  const date = new Date(d);
-  date.setDate(date.getDate() + n);
-  return date.toISOString().split("T")[0];
+function todayKey() {
+  return formatDateKey(new Date());
+}
+
+function addDays(dStr, n) {
+  const dt = parseYMD(dStr);
+  dt.setDate(dt.getDate() + n);
+  return formatDateKey(dt);
 }
 
 function remLabel(m) {
@@ -179,50 +486,143 @@ function remLabel(m) {
   return m + " хв";
 }
 
+async function api(action, body = {}) {
+  if (DEMO) return demoApi(action, body);
+  const r = await fetch("/api", {
+    method: "POST",
+    headers: { "x-init-data": initData, "content-type": "application/json" },
+    body: JSON.stringify({ action, ...body }),
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.message || j.error || "Помилка сервера");
+  return j;
+}
+
+function errText(e) { return e.message || String(e); }
+function toast(m) { if (tg.showAlert) tg.showAlert(m); else alert(m); }
+function buzz(t = "light") { if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t); }
+
 function render() {
   const app = $("#app");
   if (S.sheet) {
-    app.innerHTML = `<div class="sheet-wrap"><form id="f">
-      <label class="field"><span>Назва</span><input class="inp" name="title" required placeholder="Що плануємо?"></label>
-      <div style="display:flex; gap:10px">
-        <label class="field" style="flex:1"><span>Дата</span><input class="inp" type="date" name="date" value="${S.sel}" required></label>
-        <label class="field" style="flex:1"><span>Час</span><input class="inp" type="time" name="time" value="12:00" required></label>
+    app.innerHTML = `<div class="sheet-wrap"><form id="f" class="sheet">
+      <div class="sheet-title">Нова подія</div>
+      <label class="field"><span>Назва</span><input class="inp" name="title" placeholder="Що плануємо?" required></label>
+      <div class="row">
+        <label class="field"><span>Дата</span><input class="inp" type="date" name="date" value="${S.sel}" required></label>
+        <label class="field"><span>Час</span><input class="inp" type="time" name="time" value="12:00" required></label>
       </div>
       <div class="field"><span>Тривалість</span><div class="opts" data-group="dur">${[30, 60, 90, 120].map((m, i) => `<button type="button" class="chip" data-v="${m}" aria-pressed="${i === 1}">${m} хв</button>`).join("")}</div></div>
       <div class="field"><span>Нагадати</span><div class="opts" data-group="rem">${[10, 30, 60, 1440].map((m, i) => `<button type="button" class="chip" data-v="${m}" aria-pressed="${i === 1}">${remLabel(m)}</button>`).join("")}</div></div>
       <label class="field"><span>Нотатка</span><textarea class="inp" name="notes" maxlength="500" placeholder="Місце, деталі"></textarea></label>
       <div class="err" id="err" role="alert"></div>
       <div class="acts"><button type="button" class="btn ghost" data-cancel>Скасувати</button><button class="btn" type="submit">Додати подію</button></div></form></div>`;
+  } else if (S.tab === "cal") {
+    const evs = (S.events || []).filter(e => e.start_at && e.start_at.startsWith(S.sel) && e.status !== 'dismissed');
+    const selDate = parseYMD(S.sel);
+    const dayNum = selDate.getDate();
+    const weekdayStr = selDate.toLocaleDateString('uk-UA', { weekday: 'long' });
+    const monthYearStr = selDate.toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' });
+
+    const curr = parseYMD(S.sel);
+    const dayOfWeek = (curr.getDay() + 6) % 7;
+    const monday = new Date(curr);
+    monday.setDate(curr.getDate() - dayOfWeek);
+
+    const weekDays = [];
+    const wNames = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'нд'];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const key = formatDateKey(d);
+      weekDays.push({ key, day: d.getDate(), w: wNames[i] });
+    }
+
+    app.innerHTML = `
+      <div class="header">
+        <div class="date-big">
+          <span class="num">${dayNum}</span>
+          <div class="meta">
+            <div class="weekday">${weekdayStr.charAt(0).toUpperCase() + weekdayStr.slice(1)}</div>
+            <div class="month">${monthYearStr}</div>
+          </div>
+        </div>
+        <button class="btn-add" data-add>+ Додати</button>
+      </div>
+
+      <div class="week-strip">
+        <button class="nav-btn" data-wk="-1">&lt;</button>
+        <div class="days-list">
+          ${weekDays.map(d => `
+            <button class="day-chip ${d.key === S.sel ? 'active' : ''}" data-day="${d.key}">
+              <span class="w">${d.w}</span>
+              <span class="d">${d.day}</span>
+            </button>
+          `).join('')}
+        </div>
+        <button class="nav-btn" data-wk="1">&gt;</button>
+      </div>
+
+      <div class="content-area">
+        ${evs.length ? evs.map(e => `
+          <div class="ev-card ${e.status === 'pending' ? 'pending' : ''}" data-ev="${e.id}">
+            <div class="ev-head">
+              <span class="ev-title">${esc(e.title)}</span>
+              <span class="ev-time">${e.start_at.slice(11, 16)}</span>
+            </div>
+            ${e.notes ? `<div class="ev-notes">${esc(e.notes)}</div>` : ''}
+            ${e.source_name ? `<div class="ev-src">з чату: ${esc(e.source_name)}</div>` : ''}
+            ${S.openId === e.id ? `
+              <div class="ev-actions">
+                ${e.status === 'pending' ? `
+                  <button class="btn sm" data-ok="${e.id}">✅ Додати</button>
+                  <button class="btn sm ghost" data-no="${e.id}">❌ Пропустити</button>
+                ` : ''}
+                <button class="btn sm danger" data-del="${e.id}">🗑 Видалити</button>
+              </div>
+            ` : ''}
+          </div>
+        `).join('') : `
+          <div class="empty-card">
+            <b>Вільний день</b>
+            <p>Додайте подію або напишіть про неї в чаті, бот сам її знайде.</p>
+          </div>
+        `}
+      </div>
+
+      <div class="bottom-nav">
+        <button class="nav-tab active" data-tab="cal">📅 Календар</button>
+        <button class="nav-tab" data-tab="bot">🤖 Бот</button>
+      </div>
+    `;
   } else {
     app.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <div>
-          <div style="font-size:22px; font-weight:800;">${S.sel}</div>
-        </div>
-        <button class="btn" data-add style="flex:none; padding:8px 16px;">+ Додати</button>
+      <div class="header">
+        <div class="date-big"><span class="weekday">Налаштування чатів</span></div>
       </div>
-      <div style="display:flex; gap:6px; margin-bottom:20px; overflow-x:auto;">
-        <button class="chip" data-wk="-1">&lt;</button>
-        <button class="chip" data-day="${todayKey()}" aria-pressed="${S.sel === todayKey()}">Сьогодні</button>
-        <button class="chip" data-wk="1">&gt;</button>
+      <div class="field" style="margin-bottom:12px;">
+        <input id="q" class="inp" placeholder="Пошук чату..." value="${esc(S.q)}">
       </div>
-      <div style="flex:1;">
-        ${(S.events || []).filter(e => e.start_at && e.start_at.startsWith(S.sel)).map(e => `
-          <div class="chip" style="display:block; width:100%; text-align:left; margin-bottom:8px; padding:12px;" data-ev="${e.id}">
-            <b>${esc(e.title)}</b> <span style="float:right">${e.start_at.slice(11,16)}</span>
+      <div class="content-area chat-list">
+        ${(S.chats || []).length ? S.chats.map(c => `
+          <div class="chat-item chat">
+            <span class="chat-name">${esc(c.name)}</span>
+            <div class="chat-opts">
+              <button type="button" class="chip" data-t="flirt" data-id="${c.chat_id}" aria-pressed="${c.flirt}">💬 Флірт</button>
+              <button type="button" class="chip" data-t="mood" data-id="${c.chat_id}" aria-pressed="${c.mood}">📊 Настрій</button>
+            </div>
           </div>
-        `).join('') || '<div class="fatal"><b>Вільний день</b>Додайте подію або напишіть про неї в чаті.</div>'}
+        `).join('') : `<div class="empty-card"><p>${S.chats === null ? 'Завантаження...' : 'Нічого не знайдено'}</p></div>`}
       </div>
-      <div style="display:flex; gap:10px; margin-top:20px;">
-        <button class="btn ${S.tab==='cal'?'':'ghost'}" data-tab="cal">📅 Календар</button>
-        <button class="btn ${S.tab==='bot'?'':'ghost'}" data-tab="bot">🤖 Бот</button>
+      <div class="bottom-nav">
+        <button class="nav-tab" data-tab="cal">📅 Календар</button>
+        <button class="nav-tab active" data-tab="bot">🤖 Бот</button>
       </div>
     `;
   }
   bind();
 }
 
-// ---------- ПОДІЇ ТА ЛОГІКА ----------
 function bind() {
   document.querySelectorAll("[data-tab]").forEach((b) => b.onclick = () => { S.tab = b.dataset.tab; buzz(); render(); if (S.tab === "bot" && S.chats === null) loadChats(); });
   document.querySelectorAll("[data-day]").forEach((b) => b.onclick = () => { S.sel = b.dataset.day; S.openId = null; buzz(); render(); });
@@ -291,8 +691,17 @@ function demoApi(action, body) {
   const now = Date.now();
   const mk = (id, title, dh, dur, status, extra = {}) => ({ id, title, start_at: new Date(now + dh * 3600e3).toISOString(), end_at: new Date(now + (dh * 60 + dur) * 60e3).toISOString(), notes: null, source_name: null, remind_min: 30, status, ...extra });
   window.__demo ||= {
-    events: [mk(1, "Сніданок із Катею", -3, 60, "confirmed", { source_name: "Катя" }), mk(2, "Дзвінок щодо проєкту", 2, 45, "confirmed", { notes: "Підготувати кошторис" }), mk(3, "Кіно", 5, 120, "confirmed", { source_name: "Катя", remind_min: 60 }), mk(4, "Прогулянка в парку", 27, 90, "pending", { source_name: "Оля" })],
-    chats: [{ chat_id: 5, name: "Катя", flirt: true, mood: true }, { chat_id: 6, name: "Оля", flirt: false, mood: true }, { chat_id: 7, name: "Дмитро", flirt: false, mood: false }],
+    events: [
+      mk(1, "Сніданок із Катею", -3, 60, "confirmed", { source_name: "Катя" }),
+      mk(2, "Дзвінок щодо проєкту", 2, 45, "confirmed", { notes: "Підготувати кошторис" }),
+      mk(3, "Кіно", 5, 120, "confirmed", { source_name: "Катя", remind_min: 60 }),
+      mk(4, "Прогулянка в парку", 27, 90, "pending", { source_name: "Оля" })
+    ],
+    chats: [
+      { chat_id: 5, name: "Катя", flirt: true, mood: true },
+      { chat_id: 6, name: "Оля", flirt: false, mood: true },
+      { chat_id: 7, name: "Дмитро", flirt: false, mood: false }
+    ],
   };
   const D = window.__demo;
   if (action === "init") return Promise.resolve({ tz: "Europe/Kyiv", ai: "Groq", editor: true, hub: ["flirt"], events: D.events });
