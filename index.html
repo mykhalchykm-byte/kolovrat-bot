@@ -12,20 +12,23 @@
 <style>
   /* Додайте це до ваших існуючих стилів */
   :root {
-    --safe-area-top: env(safe-area-inset-top);
-  }
+  /* Беремо стандартну безпечну зону iPhone і додаємо ще +14px для гарантованого запасу */
+  --safe-top: calc(env(safe-area-inset-top, 0px) + 14px);
+  --safe-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+}
 
-  /* Додайте цей відступ для головного контейнера */
-  body {
-    padding-top: var(--safe-area-top);
-    /* Щоб фон зафарбовував область під "острівцем" */
-    background-color: var(--bg); 
-  }
+body {
+  margin: 0;
+  padding: 0;
+  padding-top: var(--safe-top) !important;
+  padding-bottom: var(--safe-bottom) !important;
+  background-color: var(--tg-theme-bg-color, #ffffff);
+}
 
-  /* Якщо у вас є верхня панель (header), додайте це */
-  .header, .sheet-wrap {
-    padding-top: var(--safe-area-top);
-  }
+/* Якщо верхня шапка (дата, кнопки закриття/додавання) у контейнері */
+#app {
+  padding-top: 4px;
+}
 :root {
   --bg: #f5f3f6;
   --surface: #ffffff;
