@@ -294,7 +294,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
 // Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
-const APP_VER = "v5 · іконка і назва БОТ";
+const APP_VER = "v6 · лічильник непрочитаних";
 const KEY_LS = "kb_app_key";
 const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
 const setKey = (v) => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (_) {} };
@@ -695,6 +695,7 @@ async function loadFeedChats() {
 }
 
 async function openChat(id) {
+  { const cc = (S.cchats || []).find((x) => x.chat_id === id); if (cc) cc.count = 0; }
   listScroll = window.scrollY; S.cv = id; S.citems = null; S.hasMore = false; S.itemsErr = null; buzz(); render(); window.scrollTo(0, 0);
   try { const j = await api("feed", { chat_id: id }); S.citems = j.items || []; S.hasMore = !!j.has_more; }
   catch (e) { S.citems = []; S.itemsErr = e; }
