@@ -1,0 +1,17 @@
+{
+  "name": "Календар і бот",
+  "short_name": "Календар",
+  "description": "Календар, чати, асистент і керування ботом",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f3f6",
+  "theme_color": "#f5f3f6",
+  "lang": "uk",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

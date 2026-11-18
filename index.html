@@ -8,6 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Календар">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f5f3f6">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root {
@@ -260,6 +268,16 @@ body.kb .tabbar { display: none; }
 body.kb .composer { bottom: 0; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
 .linkbtn { color: var(--muted); font-size: 13px; font-weight: 600; padding: 8px 4px; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+html.web { --safe-top: calc(env(safe-area-inset-top, 0px) + 8px); }
+.login { max-width: 360px; margin: 18vh auto 0; text-align: center; }
+.login h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 6px; }
+.login p { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+.login input { width: 100%; height: 50px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); padding: 0 16px; font-size: 17px; margin-bottom: 12px; }
+.login .btn { width: 100%; height: 50px; font-size: 16px; }
+.login .err { color: var(--danger); font-size: 14px; min-height: 20px; margin-bottom: 8px; }
+.pushbox { padding: 16px 18px 18px; }
+.pushbox .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.pushbox .note { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
 </style>
 </head>
 <body>
@@ -272,6 +290,11 @@ const API_URL = "https://hwfjgaxtifypxseyyhee.supabase.co/functions/v1/telegram-
 const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
+// Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
+const KEY_LS = "kb_app_key";
+const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
+const setKey = (v) => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (_) {} };
+if (!initData) document.documentElement.classList.add("web");
 
 const S = {
   tz: "Europe/Kyiv", tab: "cal", events: [], chats: null, q: "", ai: null, editor: false, hub: [],
@@ -312,16 +335,18 @@ async function api(action, body = {}) {
   if (DEMO) return demoApi(action, body);
   const r = await fetch(API_URL, {
     method: "POST",
-    headers: { "content-type": "application/json", "x-init-data": initData },
+    headers: initData ? { "content-type": "application/json", "x-init-data": initData } : { "content-type": "application/json", "x-app-key": getKey() },
     body: JSON.stringify({ action, ...body }),
   });
   let j = {};
   try { j = await r.json(); } catch (_) {}
+  if (r.status === 401 && !initData) { setKey(""); showLogin("Невірний код доступу."); }
   if (!r.ok) { const e = new Error(j.error || "http"); e.code = j.error; e.status = r.status; e.detail = j.message; throw e; }
   return j;
 }
 function errText(e) {
   if (e.code === "not_owner") return "Застосунок відкривається лише для власника акаунта, до якого підключено бота.";
+  if (e.code === "auth" && !initData) return "Невірний код доступу.";
   if (e.code === "auth") return "Не вдалося перевірити вхід. Закрийте застосунок і відкрийте його знову з чату з ботом.";
   if (e.code === "db") return "Не вдалося зберегти. Перевірте, що таблиці в Supabase створено." + (e.detail ? " (" + e.detail + ")" : "");
   return "Немає зв'язку з ботом. Перевірте інтернет і спробуйте ще раз.";
@@ -432,6 +457,7 @@ function viewBot() {
       <div class="stat"><span>Нейромережа</span><span>${esc(S.ai || "не підключено")}${S.editor ? " + " + esc(typeof S.editor === "string" ? S.editor : "редактор") : ""}</span></div>
       <div class="stat"><span>Група з темами</span><span>${S.hub.length ? "створена" : "не створена (/hub)"}</span></div>
       <div class="stat"><span>Пошук планів</span><span>у всіх чатах</span></div></section>
+    ${pushBlock()}
     <p class="hint">Флірт підказує відповіді, настрій аналізує співрозмовника. Вмикайте для окремих чатів.</p>
     <input class="search" id="q" type="search" placeholder="Знайти чат за іменем" value="${esc(S.q)}" aria-label="Знайти чат за іменем" autocomplete="off">
     <section class="block" aria-label="Чати">${rows}</section>`;
@@ -725,7 +751,7 @@ function bindAI() {
   const clr = $("[data-aclear]");
   if (clr) clr.onclick = () => {
     const go = async () => { try { await api("assistant_clear"); S.msgs = []; render(); toast("Розмову очищено"); } catch (e) { toast(errText(e)); } };
-    if (tg && tg.showConfirm) tg.showConfirm("Очистити розмову з асистентом? Події календаря не зміняться.", (ok) => ok && go()); else if (confirm("Очистити розмову?")) go();
+    if (tg && initData && tg.showConfirm) tg.showConfirm("Очистити розмову з асистентом? Події календаря не зміняться.", (ok) => ok && go()); else if (confirm("Очистити розмову?")) go();
   };
   bindSugg(); fit(); send.disabled = !t.value.trim() || S.busy;
 }
@@ -771,26 +797,96 @@ function demoApi(action, body) {
 
 // ---------- старт ----------
 function applyTheme() {
-  if (!tg) return;
+  if (!tg || !initData) { syncThemeColor(); return; }
   const light = tg.colorScheme === "light";
   document.documentElement.dataset.theme = light ? "light" : "dark";
   const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
   try { tg.setHeaderColor(bg); tg.setBackgroundColor(bg); } catch (_) {}
 }
 
+function syncThemeColor() {
+  const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
+  const m = document.querySelector('meta[name="theme-color"]'); if (m && bg) m.setAttribute("content", bg);
+}
+
+// ---------- вхід за кодом (iPhone / браузер) ----------
+function showLogin(msg) {
+  const app = $("#app");
+  app.innerHTML = `<div class="login"><h1>Вхід</h1><p>Введіть код доступу з Supabase (секрет <b>APP_KEY</b>). Він зберігається лише на цьому пристрої.</p>
+    <input id="lk" type="password" placeholder="Код доступу" autocomplete="current-password" autocapitalize="off" autocorrect="off" aria-label="Код доступу">
+    <div class="err" id="lerr">${esc(msg || "")}</div><button class="btn" id="lgo">Увійти</button></div>`;
+  const go = () => { const v = $("#lk").value.trim(); if (!v) { $("#lerr").textContent = "Введіть код."; return; } setKey(v); start(); };
+  $("#lgo").onclick = go; $("#lk").onkeydown = (e) => { if (e.key === "Enter") go(); };
+}
+function logout() { setKey(""); S.push = { sub: null }; showLogin(); }
+
+// ---------- push-сповіщення (iPhone: iOS 16.4+, застосунок на головному екрані) ----------
+const pushOk = () => !initData && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const b64ToU8 = (b) => { const p = "=".repeat((4 - b.length % 4) % 4), r = atob((b + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(r, (c) => c.charCodeAt(0)); };
+async function pushState() {
+  if (!pushOk()) return;
+  try { const reg = await navigator.serviceWorker.ready; const sub = await reg.pushManager.getSubscription(); S.push = { sub: !!sub && Notification.permission === "granted" }; }
+  catch (_) { S.push = { sub: false }; }
+  if (S.tab === "bot") render();
+}
+function pushBlock() {
+  let body;
+  if (initData) body = `<p class="note">Сповіщення на iPhone вмикаються в застосунку з головного екрана (не в Telegram).</p>`;
+  else if (!pushOk()) body = `<p class="note">Щоб отримувати сповіщення, додайте застосунок на головний екран: Safari → «Поділитися» → «На екран "Додому"», потім відкрийте його з іконки (потрібен iOS 16.4 або новіший).</p>`;
+  else if (S.push && S.push.sub) body = `<div class="stat"><span>Сповіщення</span><span>увімкнено</span></div><div class="acts"><button class="btn" data-push="test">Надіслати тест</button><button class="btn ghost" data-push="off">Вимкнути</button></div>`;
+  else body = `<div class="acts"><button class="btn" data-push="on">Увімкнути сповіщення</button></div><p class="note">Видалене, змінене, настрій, флірт, нові плани й нагадування приходитимуть на iPhone.</p>`;
+  const out = !initData && getKey() ? `<div class="acts"><button class="btn ghost" data-push="logout">Вийти з цього пристрою</button></div>` : "";
+  return `<section class="block pushbox" aria-label="Сповіщення">${body}${out}</section>`;
+}
+async function pushAction(a) {
+  try {
+    if (a === "logout") { if (confirm("Вийти? Код доведеться ввести знову.")) logout(); return; }
+    const reg = await navigator.serviceWorker.ready;
+    if (a === "on") {
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") { toast("Дозвольте сповіщення в Налаштуваннях iPhone"); return; }
+      const { key } = await api("push_key");
+      const old = await reg.pushManager.getSubscription(); if (old) await old.unsubscribe();
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(key) });
+      await api("push_sub", { sub: sub.toJSON() });
+      S.push = { sub: true }; buzz("medium"); render(); toast("Сповіщення увімкнено");
+    } else if (a === "off") {
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) { const ep = sub.endpoint; await sub.unsubscribe(); try { await api("push_unsub", { endpoint: ep }); } catch (_) {} }
+      S.push = { sub: false }; render(); toast("Сповіщення вимкнено");
+    } else if (a === "test") {
+      const j = await api("push_test");
+      toast(j.sent ? "Тест надіслано" : "Підписку не знайдено: увімкніть сповіщення знову");
+    }
+  } catch (e) { toast(errText(e)); }
+}
+document.addEventListener("click", (ev) => { const b = ev.target.closest("[data-push]"); if (b) pushAction(b.dataset.push); });
+function goFromHash() {
+  const m = /^#go=(cal|chats|ai|bot)(?::(-?\d+))?$/.exec(location.hash); if (!m) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  if (m[1] === "chats" && m[2]) { S.tab = "chats"; openChat(+m[2]); } else goTab(m[1]);
+}
+
 async function start() {
-  if (tg) { tg.ready(); tg.expand(); applyTheme(); tg.onEvent && tg.onEvent("themeChanged", applyTheme); }
+  if (tg && initData) { tg.ready(); tg.expand(); applyTheme(); tg.onEvent && tg.onEvent("themeChanged", applyTheme); }
+  else { syncThemeColor(); try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncThemeColor); } catch (_) {} }
   const app = $("#app");
   if (!initData && !DEMO) {
-    app.innerHTML = `<div class="fatal"><b>Відкрийте застосунок із Telegram</b>Натисніть кнопку «Застосунок» біля поля вводу в чаті з ботом або напишіть боту <code>/app</code>.</div>`;
-    return;
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+      navigator.serviceWorker.addEventListener("message", (ev) => { if (ev.data && ev.data.go) { location.hash = "#go=" + ev.data.go; goFromHash(); } });
+    }
+    window.addEventListener("hashchange", () => { if (S.events && getKey()) goFromHash(); });
+    if (!getKey()) { showLogin(); return; }
   }
   try {
     const j = await api("init");
     Object.assign(S, { tz: j.tz || S.tz, ai: j.ai, editor: !!j.editor, hub: j.hub || [], events: j.events || [] });
     S.sel = todayKey();
     render();
+    if (!initData && !DEMO) { pushState(); goFromHash(); }
   } catch (e) {
+    if (!initData && e.code === "auth") return;
     app.innerHTML = `<div class="fatal"><b>Не вдалося відкрити</b>${esc(errText(e))}</div>`;
   }
 }
