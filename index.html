@@ -220,6 +220,9 @@ textarea.inp { height: 72px; padding: 10px 12px; resize: none; }
 .notice { background: var(--amber-soft); color: var(--ink); border-radius: var(--r-md); padding: 12px 14px; margin: 8px 0; font-size: 13px; }
 .notice code { background: var(--surface); padding: 1px 5px; border-radius: 5px; }
 
+body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: var(--safe-top); background: var(--bg); z-index: 6; }
+.cstick { position: sticky; top: var(--safe-top); z-index: 7; background: var(--bg); margin: 0 -16px 8px; padding: 4px 16px 8px; border-bottom: 1px solid var(--line); }
+.cstick .tgl { margin: 0; }
 .chead { display: flex; align-items: center; gap: 12px; padding: 4px 0 12px; }
 .back { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); box-shadow: var(--shadow); flex: none; }
 .back svg { width: 18px; height: 18px; }
@@ -543,11 +546,11 @@ function viewChat() {
       return sep + card(it);
     }).join("");
   }
-  return `<header class="chead"><button class="back" data-back aria-label="До списку чатів">${ICON.back}</button>
+  return `<div class="cstick"><header class="chead"><button class="back" data-back aria-label="До списку чатів">${ICON.back}</button>
     <div class="cm"><div class="cn">${esc(c.name)}</div></div></header>
     <div class="tgl"><span>Бот стежить:</span>
       <button class="chip" data-t="flirt" data-id="${S.cv}" aria-pressed="${!!c.flirt}">Флірт</button>
-      <button class="chip" data-t="mood" data-id="${S.cv}" aria-pressed="${!!c.mood}">Настрій</button></div>
+      <button class="chip" data-t="mood" data-id="${S.cv}" aria-pressed="${!!c.mood}">Настрій</button></div></div>
     <div id="feed">${body}</div>`;
 }
 
