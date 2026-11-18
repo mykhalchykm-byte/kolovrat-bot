@@ -1,5 +1,5 @@
 // Service worker: push-сповіщення + офлайн-запас для оболонки застосунку
-const CACHE = "kb-shell-v1";
+const CACHE = "kb-shell-v3";
 const SHELL = ["./", "icon-192.png", "icon-512.png", "manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
@@ -15,7 +15,7 @@ self.addEventListener("fetch", (e) => {
   const r = e.request;
   if (r.method !== "GET" || new URL(r.url).origin !== location.origin) return;
   e.respondWith(
-    fetch(r).then((res) => { if (res.ok) { const cp = res.clone(); caches.open(CACHE).then((c) => c.put(r, cp)); } return res; })
+    fetch(r, { cache: "no-cache" }).then((res) => { if (res.ok) { const cp = res.clone(); caches.open(CACHE).then((c) => c.put(r, cp)); } return res; })
       .catch(() => caches.match(r).then((m) => m || caches.match("./"))),
   );
 });

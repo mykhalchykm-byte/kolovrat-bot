@@ -294,6 +294,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
 // Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
+const APP_VER = "v3 · закріплена шапка чату";
 const KEY_LS = "kb_app_key";
 const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
 const setKey = (v) => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (_) {} };
@@ -839,7 +840,7 @@ function pushBlock() {
   else if (S.push && S.push.sub) body = `<div class="stat"><span>Сповіщення</span><span>увімкнено</span></div><div class="acts"><button class="btn" data-push="test">Надіслати тест</button><button class="btn ghost" data-push="off">Вимкнути</button></div>`;
   else body = `<div class="acts"><button class="btn" data-push="on">Увімкнути сповіщення</button></div><p class="note">Видалене, змінене, настрій, флірт, нові плани й нагадування приходитимуть на iPhone.</p>`;
   const out = !initData && getKey() ? `<div class="acts"><button class="btn ghost" data-push="logout">Вийти з цього пристрою</button></div>` : "";
-  return `<section class="block pushbox" aria-label="Сповіщення">${body}${out}</section>`;
+  return `<section class="block pushbox" aria-label="Сповіщення">${body}${out}<p class="note">Версія застосунку: ${APP_VER}</p></section>`;
 }
 async function pushAction(a) {
   try {
