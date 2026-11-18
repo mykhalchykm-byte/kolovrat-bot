@@ -171,9 +171,9 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
   padding: 8px 16px calc(10px + env(safe-area-inset-bottom));
   background: linear-gradient(to top, var(--bg) 70%, transparent);
 }
-.tabs { display: flex; gap: 4px; padding: 4px; background: var(--surface); border-radius: 999px; box-shadow: var(--shadow); width: 100%; max-width: 360px; }
-.tab { flex: 1; height: 44px; border-radius: 999px; font-weight: 600; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 8px; }
-.tab svg { width: 18px; height: 18px; }
+.tabs { display: flex; gap: 2px; padding: 4px; background: var(--surface); border-radius: 26px; box-shadow: var(--shadow); width: 100%; max-width: 440px; }
+.tab { flex: 1; height: 54px; border-radius: 22px; font-weight: 600; font-size: 11.5px; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.tab svg { width: 20px; height: 20px; }
 .tab[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
 
 /* ---------- Форма ---------- */
@@ -197,6 +197,68 @@ textarea.inp { height: 72px; padding: 10px 12px; resize: none; }
 .fatal { padding: 40px 12px; text-align: center; color: var(--muted); }
 .fatal b { display: block; color: var(--ink); font-size: 18px; margin-bottom: 6px; }
 .fatal code { background: var(--surface); padding: 2px 6px; border-radius: 6px; font-size: 13px; }
+
+/* ---------- Чати ---------- */
+.crow { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); width: 100%; text-align: left; }
+#clist > .crow:first-child, #clist > .notice + .crow { border-top: 0; }
+.cm { flex: 1; min-width: 0; }
+.cn { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cl { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cr { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; min-width: 34px; }
+.ct { color: var(--muted); font-size: 12px; }
+.badge { min-width: 22px; height: 22px; padding: 0 7px; border-radius: 11px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.k { font-weight: 600; }
+.k.deleted { color: var(--danger); } .k.edited { color: var(--amber); } .k.mood, .k.flirt { color: var(--accent); }
+.notice { background: var(--amber-soft); color: var(--ink); border-radius: var(--r-md); padding: 12px 14px; margin: 8px 0; font-size: 13px; }
+.notice code { background: var(--surface); padding: 1px 5px; border-radius: 5px; }
+
+.chead { display: flex; align-items: center; gap: 12px; padding: 4px 0 12px; }
+.back { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); box-shadow: var(--shadow); flex: none; }
+.back svg { width: 18px; height: 18px; }
+.chead .cn { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.tgl { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; color: var(--muted); font-size: 13px; }
+.day-sep { text-align: center; color: var(--muted); font-size: 12px; margin: 18px 0 10px; }
+.fc { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 12px 14px; margin-bottom: 10px; }
+.fh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
+.fh b { font-weight: 700; }
+.fh time { color: var(--muted); }
+.fc.deleted .fh b { color: var(--danger); } .fc.edited .fh b { color: var(--amber); } .fc.mood .fh b, .fc.flirt .fh b { color: var(--accent); }
+.qt { color: var(--muted); font-size: 13px; border-left: 3px solid var(--line); padding-left: 10px; margin-bottom: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.bd { white-space: pre-wrap; overflow-wrap: anywhere; }
+.opt { display: flex; align-items: flex-start; gap: 8px; padding: 10px 6px 10px 12px; background: var(--bg); border-radius: var(--r-md); margin-top: 8px; }
+.opt span { flex: 1; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cpy { width: 34px; height: 34px; border-radius: 50%; color: var(--accent); display: grid; place-items: center; flex: none; }
+.cpy svg { width: 18px; height: 18px; }
+.was, .now2 { white-space: pre-wrap; overflow-wrap: anywhere; }
+.was { margin-bottom: 10px; color: var(--muted); }
+.was em, .now2 em { display: block; font-style: normal; font-size: 12px; color: var(--muted); margin-bottom: 1px; }
+.fc img, .fc video { max-width: 100%; max-height: 360px; border-radius: var(--r-md); display: block; margin-bottom: 8px; }
+.fc audio { width: 100%; margin-bottom: 8px; }
+.fc a { color: var(--accent); font-weight: 600; }
+.mdn { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+.moreb { display: block; margin: 0 auto 8px; }
+
+/* ---------- Асистент ---------- */
+.msgs { display: flex; flex-direction: column; gap: 8px; padding-bottom: 150px; }
+.bub { max-width: 86%; padding: 10px 14px; border-radius: 18px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.4; }
+.bub.me { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-bottom-right-radius: 6px; }
+.bub.bot { align-self: flex-start; background: var(--surface); box-shadow: var(--shadow); border-bottom-left-radius: 6px; }
+.bub.err { color: var(--danger); }
+.typing { display: flex; gap: 4px; padding: 15px 16px; }
+.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: blink 1s infinite ease-in-out; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+.sugg { display: flex; flex-direction: column; align-items: stretch; gap: 8px; margin-top: 14px; }
+.sugg .chip { height: auto; min-height: 42px; padding: 10px 16px; text-align: left; font-weight: 500; border-radius: var(--r-md); color: var(--ink); }
+.composer { position: fixed; left: 0; right: 0; bottom: calc(88px + env(safe-area-inset-bottom)); z-index: 6; padding: 8px 16px; display: flex; justify-content: center; }
+.composer form { display: flex; align-items: flex-end; gap: 8px; width: 100%; max-width: 560px; background: var(--surface); border-radius: 26px; box-shadow: var(--shadow); padding: 6px 6px 6px 18px; }
+.composer textarea { flex: 1; min-width: 0; border: 0; background: transparent; resize: none; max-height: 120px; padding: 9px 0; outline: none; line-height: 1.35; }
+.send { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.send:disabled { opacity: .35; }
+.send svg { width: 18px; height: 18px; }
+body.kb .tabbar { display: none; }
+body.kb .composer { bottom: 0; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+.linkbtn { color: var(--muted); font-size: 13px; font-weight: 600; padding: 8px 4px; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -214,6 +276,8 @@ const DEMO = !initData && location.hash === "#demo"; // перегляд без 
 const S = {
   tz: "Europe/Kyiv", tab: "cal", events: [], chats: null, q: "", ai: null, editor: false, hub: [],
   sel: null, openId: null, sheet: false, loadingChats: false,
+  cchats: null, cq: "", cv: null, citems: null, hasMore: false, itemsErr: null, feedErr: null,
+  msgs: null, draft: "", busy: false, scrollDown: false,
 };
 
 // ---------- утиліти ----------
@@ -270,17 +334,32 @@ const ICON = {
   next: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 3 6 6-6 6"/></svg>',
   cal: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="13" height="12" rx="3"/><path d="M2.5 7.5h13M6 2v3M12 2v3"/></svg>',
   bot: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="12" height="9" rx="3"/><path d="M9 2.5v3M6.5 10h.01M11.5 10h.01"/></svg>',
+  chats: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5A2.5 2.5 0 0 1 5.5 2h7A2.5 2.5 0 0 1 15 4.5v5a2.5 2.5 0 0 1-2.5 2.5H8l-3.5 3v-3A2.5 2.5 0 0 1 3 9.5z"/></svg>',
+  ai: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2.5 10.6 7 15 8.5 10.6 10 9 14.5 7.4 10 3 8.5 7.4 7z"/><path d="M14.5 2.5v2M13.5 3.5h2"/></svg>',
+  back: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3 5 9l6 6"/></svg>',
+  send: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14.5v-11M4.5 8 9 3.5 13.5 8"/></svg>',
+  copy: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="9" height="9" rx="2.5"/><path d="M12 6V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1"/></svg>',
 };
 
 function render() {
   const app = $("#app");
-  app.innerHTML = (S.tab === "cal" ? viewCal() : viewBot()) + tabbar() + (S.sheet ? sheet() : "");
+  let v;
+  if (S.tab === "cal") v = viewCal();
+  else if (S.tab === "chats") v = S.cv != null ? viewChat() : viewChats();
+  else if (S.tab === "ai") v = viewAI();
+  else v = viewBot();
+  app.innerHTML = v + tabbar() + (S.sheet ? sheet() : "");
+  document.body.classList.remove("kb");
   bind();
+  syncBack();
+  if (S.scrollDown) { S.scrollDown = false; window.scrollTo(0, document.documentElement.scrollHeight); }
 }
 
 function tabbar() {
   return `<nav class="tabbar"><div class="tabs" role="tablist">
     <button class="tab" role="tab" data-tab="cal" aria-selected="${S.tab === "cal"}">${ICON.cal}Календар</button>
+    <button class="tab" role="tab" data-tab="chats" aria-selected="${S.tab === "chats"}">${ICON.chats}Чати</button>
+    <button class="tab" role="tab" data-tab="ai" aria-selected="${S.tab === "ai"}">${ICON.ai}Асистент</button>
     <button class="tab" role="tab" data-tab="bot" aria-selected="${S.tab === "bot"}">${ICON.bot}Бот</button>
   </div></nav>`;
 }
@@ -350,12 +429,120 @@ function viewBot() {
   return `<header class="dayhead"><div class="daymeta"><div class="wd" style="font-size:28px;font-weight:800;letter-spacing:-.02em">Бот</div>
     <div class="mo">Що бот робить у чатах</div></div></header>
     <section class="block" aria-label="Стан">
-      <div class="stat"><span>Нейромережа</span><span>${esc(S.ai || "не підключено")}${S.editor ? " + редактор" : ""}</span></div>
+      <div class="stat"><span>Нейромережа</span><span>${esc(S.ai || "не підключено")}${S.editor ? " + " + esc(typeof S.editor === "string" ? S.editor : "редактор") : ""}</span></div>
       <div class="stat"><span>Група з темами</span><span>${S.hub.length ? "створена" : "не створена (/hub)"}</span></div>
       <div class="stat"><span>Пошук планів</span><span>у всіх чатах</span></div></section>
     <p class="hint">Флірт підказує відповіді, настрій аналізує співрозмовника. Вмикайте для окремих чатів.</p>
     <input class="search" id="q" type="search" placeholder="Знайти чат за іменем" value="${esc(S.q)}" aria-label="Знайти чат за іменем" autocomplete="off">
     <section class="block" aria-label="Чати">${rows}</section>`;
+}
+
+
+// ---------- Чати: стрічка по кожній людині ----------
+const KIND = { deleted: "Видалене", edited: "Змінене", mood: "Настрій", flirt: "Флірт" };
+const MEDIA = { photo: "Фото", video: "Відео", voice: "Голосове", audio: "Аудіо", video_note: "Відеокружок", document: "Файл", sticker: "Стікер", animation: "GIF" };
+const initial = (n) => esc((n || "?").trim().charAt(0).toUpperCase());
+const shortWhen = (iso) => dayKey(iso) === todayKey()
+  ? timeStr(iso)
+  : new Intl.DateTimeFormat("uk-UA", { timeZone: S.tz, day: "2-digit", month: "2-digit" }).format(new Date(iso));
+const dayLbl = (iso) => { const k = dayKey(iso), t = todayKey(); return k === t ? "Сьогодні" : k === addDays(t, -1) ? "Вчора" : longDate(iso); };
+const prevText = (c) => String(c.last_body || "").split("\n")[0].replace(/^\d\)\s*/, "");
+
+function chatRows() {
+  const list = S.cchats;
+  let out = "";
+  if (S.feedErr) out += `<div class="notice">Стрічка ще не підключена: створіть у Supabase таблицю <code>feed</code> (SQL з інструкції). ${esc(S.feedErr)}</div>`;
+  if (list === null) return out + `<div class="empty">Завантаження…</div>`;
+  const q = S.cq.trim().toLowerCase().replace(/^@/, "");
+  const f = list.filter((c) => !q || String(c.name || "").toLowerCase().includes(q));
+  if (!f.length) return out + `<div class="empty"><b>${q ? "Нікого не знайдено" : "Поки немає чатів"}</b>${q ? "Перевірте написання імені." : "Бот бачить лише тих, хто написав вам після підключення."}</div>`;
+  return out + f.map((c) => `<button class="crow" data-chat="${c.chat_id}">
+    <div class="av">${initial(c.name)}</div>
+    <div class="cm"><div class="cn">${esc(c.name)}</div>
+    <div class="cl">${c.last_kind ? `<span class="k ${c.last_kind}">${KIND[c.last_kind] || ""}</span> ${esc(prevText(c))}` : "Поки нічого"}</div></div>
+    <div class="cr">${c.last_at ? `<span class="ct num">${shortWhen(c.last_at)}</span>` : ""}${c.count ? `<span class="badge num">${c.count}</span>` : ""}</div></button>`).join("");
+}
+
+function viewChats() {
+  return `<header class="dayhead"><div class="daymeta"><div class="wd" style="font-size:28px;font-weight:800;letter-spacing:-.02em">Чати</div>
+    <div class="mo">Видалене, змінене, настрій і флірт по кожній людині</div></div></header>
+    <input class="search" id="cq" type="search" placeholder="Знайти людину" value="${esc(S.cq)}" aria-label="Знайти людину" autocomplete="off">
+    <section class="block" aria-label="Люди"><div id="clist">${chatRows()}</div></section>`;
+}
+
+function mediaHtml(it) {
+  if (!it.media_kind) return "";
+  const label = MEDIA[it.media_kind] || "Файл";
+  if (!it.url) return `<div class="mdn">${esc(label)}: файл недоступний</div>`;
+  const u = esc(it.url);
+  if (it.media_kind === "photo" || it.media_kind === "sticker") return `<img src="${u}" alt="${esc(label)}" loading="lazy">`;
+  if (["video", "animation", "video_note"].includes(it.media_kind)) return `<video src="${u}" controls playsinline preload="metadata"></video>`;
+  if (it.media_kind === "voice" || it.media_kind === "audio") return `<audio src="${u}" controls preload="none"></audio>`;
+  return `<div class="mdn"><a href="${u}" target="_blank" rel="noopener">${esc(label)}: відкрити</a></div>`;
+}
+
+function card(it) {
+  const label = KIND[it.kind] || it.kind;
+  let inner = "";
+  if (it.kind === "edited") {
+    inner = `<div class="was"><em>Було</em><s>${esc(it.quote || "—")}</s></div><div class="now2"><em>Стало</em>${esc(it.body || "—")}</div>`;
+  } else {
+    if (it.quote) inner += `<div class="qt">${esc(it.quote)}</div>`;
+    if (it.kind === "flirt") {
+      const opts = String(it.body || "").split("\n").map((l) => l.trim()).filter((l) => /^\d\)/.test(l)).map((l) => l.replace(/^\d\)\s*/, ""));
+      inner += opts.length
+        ? opts.map((t) => `<div class="opt"><span>${esc(t)}</span><button class="cpy" data-copy="${esc(t)}" aria-label="Копіювати відповідь">${ICON.copy}</button></div>`).join("")
+        : `<div class="bd">${esc(it.body)}</div>`;
+    } else if (it.kind === "deleted") {
+      inner += mediaHtml(it) + (it.body ? `<div class="bd">${esc(it.body)}</div>` : "");
+    } else {
+      inner += `<div class="bd">${esc(it.body)}</div>`;
+    }
+  }
+  return `<article class="fc ${esc(it.kind)}"><div class="fh"><b>${esc(label)}</b><time class="num">${timeStr(it.at)}</time></div>${inner}</article>`;
+}
+
+function viewChat() {
+  const c = (S.cchats || []).find((x) => x.chat_id === S.cv) || { name: "Чат", flirt: false, mood: false };
+  let body = "";
+  if (S.citems === null) body = `<div class="empty">Завантаження…</div>`;
+  else if (S.itemsErr) body = `<div class="notice">${S.itemsErr.code === "db" ? "Не вдалося прочитати стрічку. Перевірте, що в Supabase створено таблицю <code>feed</code>." : esc(errText(S.itemsErr))}</div>`;
+  else if (!S.citems.length) body = `<div class="empty"><b>Поки нічого</b>Тут з'являться видалені й змінені повідомлення, настрій і підказки для відповіді.</div>`;
+  else {
+    let last = "";
+    body = (S.hasMore ? `<button class="btn ghost moreb" data-more>Показати раніше</button>` : "") + S.citems.map((it) => {
+      const d = dayKey(it.at);
+      const sep = d !== last ? `<div class="day-sep">${esc(dayLbl(it.at))}</div>` : "";
+      last = d;
+      return sep + card(it);
+    }).join("");
+  }
+  return `<header class="chead"><button class="back" data-back aria-label="До списку чатів">${ICON.back}</button>
+    <div class="cm"><div class="cn">${esc(c.name)}</div></div></header>
+    <div class="tgl"><span>Бот стежить:</span>
+      <button class="chip" data-t="flirt" data-id="${S.cv}" aria-pressed="${!!c.flirt}">Флірт</button>
+      <button class="chip" data-t="mood" data-id="${S.cv}" aria-pressed="${!!c.mood}">Настрій</button></div>
+    <div id="feed">${body}</div>`;
+}
+
+// ---------- Асистент ----------
+const SUGG = ["Що в мене сьогодні?", "Заплануй на завтра о 18:00 каву з Катею", "Допоможи придумати привітання для друга"];
+function msgsHtml() {
+  if (S.msgs === null) return `<div class="empty">Завантаження…</div>`;
+  if (!S.msgs.length && !S.busy) {
+    return `<div class="empty"><b>Запитайте що завгодно</b>Асистент знає ваш календар і може додавати та переносити події.</div>
+      <div class="sugg">${SUGG.map((t) => `<button class="chip" data-sg="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;
+  }
+  return S.msgs.map((m) => `<div class="bub ${m.role === "user" ? "me" : "bot"}${m.err ? " err" : ""}">${esc(m.content)}</div>`).join("")
+    + (S.busy ? `<div class="bub bot typing" role="status" aria-label="Асистент пише"><i></i><i></i><i></i></div>` : "");
+}
+function viewAI() {
+  return `<header class="dayhead"><div class="daymeta"><div class="wd" style="font-size:28px;font-weight:800;letter-spacing:-.02em">Асистент</div>
+    <div class="mo">Питання, плани, поради</div></div>
+    ${S.msgs && S.msgs.length ? `<button class="linkbtn" data-aclear>Очистити</button>` : ""}</header>
+    <div class="msgs" id="msgs">${msgsHtml()}</div>
+    <div class="composer"><form id="af"><textarea id="ai" rows="1" maxlength="4000" placeholder="Напишіть асистенту" aria-label="Повідомлення асистенту">${esc(S.draft)}</textarea>
+    <button class="send" type="submit" aria-label="Надіслати" disabled>${ICON.send}</button></form></div>`;
 }
 
 function sheet() {
@@ -375,7 +562,7 @@ function sheet() {
 
 // ---------- події ----------
 function bind() {
-  document.querySelectorAll("[data-tab]").forEach((b) => b.onclick = () => { S.tab = b.dataset.tab; buzz(); render(); if (S.tab === "bot" && S.chats === null) loadChats(); });
+  document.querySelectorAll("[data-tab]").forEach((b) => b.onclick = () => goTab(b.dataset.tab));
   document.querySelectorAll("[data-day]").forEach((b) => b.onclick = () => { S.sel = b.dataset.day; S.openId = null; buzz(); render(); });
   document.querySelectorAll("[data-wk]").forEach((b) => b.onclick = () => { S.sel = addDays(S.sel, 7 * +b.dataset.wk); S.openId = null; render(); });
   document.querySelectorAll("[data-ev]").forEach((b) => b.onclick = () => {
@@ -385,7 +572,13 @@ function bind() {
   document.querySelectorAll("[data-ok]").forEach((b) => b.onclick = () => mutate("event_status", { id: +b.dataset.ok, status: "confirmed" }, "Додано в календар"));
   document.querySelectorAll("[data-no]").forEach((b) => b.onclick = () => mutate("event_status", { id: +b.dataset.no, status: "dismissed" }, "Пропущено"));
   const add = $("[data-add]"); if (add) add.onclick = () => { S.sheet = true; render(); const t = $('input[name="title"]'); t && t.focus(); };
-  document.querySelectorAll(".chat .chip").forEach((b) => b.onclick = () => toggleChat(b));
+  document.querySelectorAll(".chat .chip, .tgl .chip").forEach((b) => b.onclick = () => toggleChat(b));
+  bindRows();
+  const cq = $("#cq"); if (cq) cq.oninput = () => { S.cq = cq.value; refreshList(); };
+  const back = $("[data-back]"); if (back) back.onclick = closeChat;
+  const more = $("[data-more]"); if (more) more.onclick = moreFeed;
+  document.querySelectorAll("[data-copy]").forEach((b) => b.onclick = () => copyText(b.dataset.copy));
+  bindAI();
   const q = $("#q"); if (q) q.oninput = debounce(() => { S.q = q.value; loadChats(true); }, 350);
   if (S.sheet) bindSheet();
 }
@@ -417,10 +610,13 @@ async function mutate(action, body, okText) {
 
 async function toggleChat(btn) {
   const kind = btn.dataset.t, id = +btn.dataset.id;
-  const c = S.chats.find((x) => x.chat_id === id); if (!c) return;
-  const next = !c[kind]; c[kind] = next; btn.setAttribute("aria-pressed", String(next)); buzz();
+  const lists = [S.chats, S.cchats].filter(Boolean);
+  const cur = lists.map((l) => l.find((x) => x.chat_id === id)).find(Boolean); if (!cur) return;
+  const next = !cur[kind];
+  const set = (v) => { lists.forEach((l) => { const x = l.find((y) => y.chat_id === id); if (x) x[kind] = v; }); btn.setAttribute("aria-pressed", String(v)); };
+  set(next); buzz();
   try { await api("toggle", { kind, chat_id: id, enabled: next }); }
-  catch (e) { c[kind] = !next; btn.setAttribute("aria-pressed", String(!next)); toast(errText(e)); }
+  catch (e) { set(!next); toast(errText(e)); }
 }
 
 async function loadChats(keepFocus) {
@@ -436,6 +632,104 @@ async function loadChats(keepFocus) {
   } catch (e) { S.chats = []; toast(errText(e)); if (S.tab === "bot") render(); }
 }
 
+
+// ---------- вкладки, чати, асистент: логіка ----------
+function goTab(t) {
+  S.cv = null; S.tab = t; buzz();
+  if (t === "ai") S.scrollDown = true;
+  render();
+  if (t === "bot" && S.chats === null) loadChats();
+  if (t === "chats") loadFeedChats();
+  if (t === "ai" && S.msgs === null) loadAI();
+}
+
+let backBound = false;
+function syncBack() {
+  const bb = tg && tg.BackButton; if (!bb) return;
+  if (!backBound) { bb.onClick(closeChat); backBound = true; }
+  if (S.tab === "chats" && S.cv != null) bb.show(); else bb.hide();
+}
+function closeChat() { S.cv = null; render(); loadFeedChats(); }
+
+function bindRows() { document.querySelectorAll("[data-chat]").forEach((b) => b.onclick = () => openChat(+b.dataset.chat)); }
+function refreshList() { const el = $("#clist"); if (el) { el.innerHTML = chatRows(); bindRows(); } else render(); }
+
+async function loadFeedChats() {
+  try {
+    const j = await api("feed_chats");
+    S.cchats = j.chats || []; S.feedErr = j.feed_ready === false ? (j.feed_error || " ") : null;
+  } catch (e) { if (S.cchats === null) S.cchats = []; toast(errText(e)); }
+  if (S.tab === "chats" && S.cv == null) refreshList();
+}
+
+async function openChat(id) {
+  S.cv = id; S.citems = null; S.hasMore = false; S.itemsErr = null; buzz(); render();
+  try { const j = await api("feed", { chat_id: id }); S.citems = j.items || []; S.hasMore = !!j.has_more; }
+  catch (e) { S.citems = []; S.itemsErr = e; }
+  if (S.cv === id) { S.scrollDown = true; render(); }
+}
+
+async function moreFeed() {
+  const first = S.citems && S.citems[0]; if (!first) return;
+  try {
+    const j = await api("feed", { chat_id: S.cv, before_id: first.id });
+    S.citems = [...(j.items || []), ...S.citems]; S.hasMore = !!j.has_more; render();
+  } catch (e) { toast(errText(e)); }
+}
+
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); }
+  catch (_) {
+    const a = document.createElement("textarea"); a.value = t; a.style.position = "fixed"; a.style.opacity = "0";
+    document.body.appendChild(a); a.select(); try { document.execCommand("copy"); } catch (_) {} a.remove();
+  }
+  buzz(); toast("Скопійовано");
+}
+
+async function loadAI() {
+  try { const j = await api("assistant_history"); S.msgs = (j.messages || []).map((m) => ({ role: m.role, content: m.content })); }
+  catch (e) { S.msgs = []; toast(errText(e)); }
+  if (S.tab === "ai") { S.scrollDown = true; render(); }
+}
+
+function renderMsgs() {
+  const el = $("#msgs"); if (!el) return;
+  el.innerHTML = msgsHtml(); bindSugg();
+  window.scrollTo(0, document.documentElement.scrollHeight);
+}
+function bindSugg() { document.querySelectorAll("[data-sg]").forEach((b) => b.onclick = () => sendAI(b.dataset.sg)); }
+
+async function sendAI(text) {
+  text = String(text || "").trim();
+  if (!text || S.busy) return;
+  if (S.msgs === null) S.msgs = [];
+  S.msgs.push({ role: "user", content: text }); S.busy = true; renderMsgs();
+  try {
+    const j = await api("assistant_send", { text });
+    S.msgs.push({ role: "assistant", content: j.reply || "Готово.", err: j.ok === false });
+    if (j.events) S.events = j.events;
+  } catch (e) { S.msgs.push({ role: "assistant", content: errText(e), err: true }); }
+  S.busy = false; renderMsgs(); buzz();
+}
+
+function bindAI() {
+  const f = $("#af"); if (!f) return;
+  const t = $("#ai"), send = $(".send");
+  const fit = () => { t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 120) + "px"; };
+  t.oninput = () => { S.draft = t.value; fit(); send.disabled = !t.value.trim() || S.busy; };
+  t.onfocus = () => { document.body.classList.add("kb"); setTimeout(() => window.scrollTo(0, document.documentElement.scrollHeight), 250); };
+  t.onblur = () => document.body.classList.remove("kb");
+  send.onpointerdown = (e) => e.preventDefault(); // щоб клавіатура не зникала під час надсилання
+  f.onsubmit = (e) => { e.preventDefault(); const v = t.value; t.value = ""; S.draft = ""; fit(); send.disabled = true; sendAI(v); };
+  t.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey && matchMedia("(pointer:fine)").matches) { e.preventDefault(); f.requestSubmit(); } };
+  const clr = $("[data-aclear]");
+  if (clr) clr.onclick = () => {
+    const go = async () => { try { await api("assistant_clear"); S.msgs = []; render(); toast("Розмову очищено"); } catch (e) { toast(errText(e)); } };
+    if (tg && tg.showConfirm) tg.showConfirm("Очистити розмову з асистентом? Події календаря не зміняться.", (ok) => ok && go()); else if (confirm("Очистити розмову?")) go();
+  };
+  bindSugg(); fit(); send.disabled = !t.value.trim() || S.busy;
+}
+
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
 // ---------- демо-режим (без Telegram): сторінка/#demo ----------
@@ -447,7 +741,27 @@ function demoApi(action, body) {
     chats: [{ chat_id: 5, name: "Катя", flirt: true, mood: true }, { chat_id: 6, name: "Оля", flirt: false, mood: true }, { chat_id: 7, name: "Дмитро", flirt: false, mood: false }],
   };
   const D = window.__demo;
-  if (action === "init") return Promise.resolve({ tz: "Europe/Kyiv", ai: "Groq", editor: true, hub: ["flirt"], events: D.events });
+  const ago = (min, extra) => ({ at: new Date(now - min * 60e3).toISOString(), ...extra });
+  window.__demo.feed ||= {
+    5: [
+      ago(1500, { id: 1, kind: "deleted", body: "Забудь, що я писала раніше", media_kind: null }),
+      ago(1490, { id: 2, kind: "edited", quote: "Побачимось у п'ятницю?", body: "Побачимось у суботу?" }),
+      ago(40, { id: 3, kind: "mood", quote: "[17.11 10:05] привіт, як ти?\n[17.11 10:05] ходімо на каву?", body: "😊 Настрій: привітний і трохи грайливий.\n💓 Інтерес: 8/10, сама пропонує зустріч.\n💬 Флірт: помітний, з емодзі й ініціативою." }),
+      ago(39, { id: 4, kind: "flirt", quote: "[17.11 10:05] привіт, як ти?\n[17.11 10:05] ходімо на каву?", body: "1) привіт) добре, а ти як? на каву з радістю\n2) привіт, ти якраз вчасно, саме думав про каву і про тебе\n3) з тобою навіть кава смачніша, коли йдемо?" }),
+    ],
+    6: [ago(300, { id: 5, kind: "mood", quote: "[17.11 06:00] ок", body: "😊 Настрій: нейтральний, стриманий.\n💓 Інтерес: 4/10, відповіді короткі." })],
+  };
+  window.__demo.ai ||= [{ role: "user", content: "Що в мене сьогодні?" }, { role: "assistant", content: "Сьогодні три події: дзвінок щодо проєкту о 12:50, кіно з Катею о 15:50 і вільний вечір. Можу запропонувати час для прогулянки." }];
+  if (action === "init") return Promise.resolve({ tz: "Europe/Kyiv", ai: "Groq", editor: "Claude", hub: ["flirt"], events: D.events });
+  if (action === "feed_chats") {
+    const rows = D.chats.map((c) => { const f = D.feed[c.chat_id]; const l = f && f[f.length - 1]; return { ...c, last_kind: l ? l.kind : null, last_body: l ? l.body : "", last_at: l ? l.at : null, count: f ? f.length : 0 }; });
+    rows.sort((a, b) => (b.last_at || "").localeCompare(a.last_at || ""));
+    return Promise.resolve({ feed_ready: true, chats: rows });
+  }
+  if (action === "feed") return Promise.resolve({ has_more: false, items: D.feed[body.chat_id] || [] });
+  if (action === "assistant_history") return Promise.resolve({ messages: D.ai });
+  if (action === "assistant_send") return new Promise((r) => setTimeout(() => { const reply = "Це демо-відповідь. У справжньому застосунку тут відповідає ваш асистент."; D.ai.push({ role: "user", content: body.text }, { role: "assistant", content: reply }); r({ ok: true, reply, events: D.events }); }, 700));
+  if (action === "assistant_clear") { D.ai = []; return Promise.resolve({ ok: true }); }
   if (action === "chats") return Promise.resolve({ chats: D.chats.filter((c) => c.name.toLowerCase().includes((body.q || "").toLowerCase())) });
   if (action === "event_delete") D.events = D.events.filter((e) => e.id !== body.id);
   if (action === "event_status") D.events = D.events.map((e) => (e.id === body.id ? { ...e, status: body.status } : e)).filter((e) => e.status !== "dismissed");
