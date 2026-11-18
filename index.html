@@ -294,7 +294,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
 // Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
-const APP_VER = "v3 · закріплена шапка чату";
+const APP_VER = "v4 · шапка чату, прокрутка списку";
 const KEY_LS = "kb_app_key";
 const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
 const setKey = (v) => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (_) {} };
@@ -668,6 +668,7 @@ function goTab(t) {
   S.cv = null; S.tab = t; buzz();
   if (t === "ai") S.scrollDown = true;
   render();
+  if (t !== "ai") window.scrollTo(0, 0);
   if (t === "bot" && S.chats === null) loadChats();
   if (t === "chats") loadFeedChats();
   if (t === "ai" && S.msgs === null) loadAI();
@@ -679,7 +680,8 @@ function syncBack() {
   if (!backBound) { bb.onClick(closeChat); backBound = true; }
   if (S.tab === "chats" && S.cv != null) bb.show(); else bb.hide();
 }
-function closeChat() { S.cv = null; render(); loadFeedChats(); }
+let listScroll = 0; // позиція списку чатів, щоб після виходу з чату повернутися на те саме місце
+function closeChat() { S.cv = null; render(); window.scrollTo(0, listScroll); loadFeedChats(); }
 
 function bindRows() { document.querySelectorAll("[data-chat]").forEach((b) => b.onclick = () => openChat(+b.dataset.chat)); }
 function refreshList() { const el = $("#clist"); if (el) { el.innerHTML = chatRows(); bindRows(); } else render(); }
@@ -693,7 +695,7 @@ async function loadFeedChats() {
 }
 
 async function openChat(id) {
-  S.cv = id; S.citems = null; S.hasMore = false; S.itemsErr = null; buzz(); render();
+  listScroll = window.scrollY; S.cv = id; S.citems = null; S.hasMore = false; S.itemsErr = null; buzz(); render(); window.scrollTo(0, 0);
   try { const j = await api("feed", { chat_id: id }); S.citems = j.items || []; S.hasMore = !!j.has_more; }
   catch (e) { S.citems = []; S.itemsErr = e; }
   if (S.cv === id) { S.scrollDown = true; render(); }
