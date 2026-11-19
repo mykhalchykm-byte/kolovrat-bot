@@ -298,7 +298,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
 // Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
-const APP_VER = "v8 · вкладки чату: видалене / флірт і настрій";
+const APP_VER = "v9 · у списку чатів видалене";
 const KEY_LS = "kb_app_key";
 const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
 const setKey = (v) => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (_) {} };
@@ -493,7 +493,7 @@ function chatRows() {
   return out + f.map((c) => `<button class="crow" data-chat="${c.chat_id}">
     <div class="av">${initial(c.name)}</div>
     <div class="cm"><div class="cn">${esc(c.name)}</div>
-    <div class="cl">${c.last_kind ? `<span class="k ${c.last_kind}">${KIND[c.last_kind] || ""}</span> ${esc(prevText(c))}` : "Поки нічого"}</div></div>
+    <div class="cl">${c.last_kind ? `<span class="k ${c.last_kind}">${KIND[c.last_kind] || ""}</span> ${esc(prevText(c))}` : "Видалених поки немає"}</div></div>
     <div class="cr">${c.last_at ? `<span class="ct num">${shortWhen(c.last_at)}</span>` : ""}${c.count ? `<span class="badge num">${c.count}</span>` : ""}</div></button>`).join("");
 }
 
@@ -809,7 +809,7 @@ function demoApi(action, body) {
   window.__demo.ai ||= [{ role: "user", content: "Що в мене сьогодні?" }, { role: "assistant", content: "Сьогодні три події: дзвінок щодо проєкту о 12:50, кіно з Катею о 15:50 і вільний вечір. Можу запропонувати час для прогулянки." }];
   if (action === "init") return Promise.resolve({ tz: "Europe/Kyiv", ai: "Groq", editor: "Claude", hub: ["flirt"], events: D.events });
   if (action === "feed_chats") {
-    const rows = D.chats.map((c) => { const f = D.feed[c.chat_id]; const l = f && f[f.length - 1]; return { ...c, last_kind: l ? l.kind : null, last_body: l ? l.body : "", last_at: l ? l.at : null, count: f ? f.length : 0 }; });
+    const rows = D.chats.map((c) => { const f = D.feed[c.chat_id]; const l = f && [...f].reverse().find((x) => x.kind === "deleted" || x.kind === "edited"); return { ...c, last_kind: l ? l.kind : null, last_body: l ? l.body : "", last_at: l ? l.at : null, count: f ? f.length : 0 }; });
     rows.sort((a, b) => (b.last_at || "").localeCompare(a.last_at || ""));
     return Promise.resolve({ feed_ready: true, chats: rows });
   }
