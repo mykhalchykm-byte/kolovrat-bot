@@ -227,6 +227,10 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 .back { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); box-shadow: var(--shadow); flex: none; }
 .back svg { width: 18px; height: 18px; }
 .chead .cn { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.seg { display: flex; gap: 4px; padding: 4px; margin: 4px 0 2px; border-radius: 14px; background: var(--line); }
+.seg button { flex: 1; height: 38px; border-radius: 11px; font-size: 14px; font-weight: 650; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.seg button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.seg .bd { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
 .tgl { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; color: var(--muted); font-size: 13px; }
 .day-sep { text-align: center; color: var(--muted); font-size: 12px; margin: 18px 0 10px; }
 .fc { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 12px 14px; margin-bottom: 10px; }
@@ -294,7 +298,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
 // Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
-const APP_VER = "v7 · автододавання і живе оновлення";
+const APP_VER = "v8 · вкладки чату: видалене / флірт і настрій";
 const KEY_LS = "kb_app_key";
 const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
 const setKey = (v) => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (_) {} };
@@ -537,7 +541,9 @@ function viewChat() {
   let body = "";
   if (S.citems === null) body = `<div class="empty">Завантаження…</div>`;
   else if (S.itemsErr) body = `<div class="notice">${S.itemsErr.code === "db" ? "Не вдалося прочитати стрічку. Перевірте, що в Supabase створено таблицю <code>feed</code>." : esc(errText(S.itemsErr))}</div>`;
-  else if (!S.citems.length) body = `<div class="empty"><b>Поки нічого</b>Тут з'являться видалені й змінені повідомлення, настрій і підказки для відповіді.</div>`;
+  else if (!S.citems.length) body = S.csub === "ai"
+    ? `<div class="empty"><b>Поки нічого</b>Тут з'являться аналіз настрою і підказки для флірту. Увімкніть їх для цієї людини кнопками вгорі.</div>`
+    : `<div class="empty"><b>Поки нічого</b>Тут з'являться видалені й змінені повідомлення цієї людини.</div>`;
   else {
     let last = "";
     body = (S.hasMore ? `<button class="btn ghost moreb" data-more>Показати раніше</button>` : "") + S.citems.map((it) => {
@@ -551,7 +557,10 @@ function viewChat() {
     <div class="cm"><div class="cn">${esc(c.name)}</div></div></header>
     <div class="tgl"><span>Бот стежить:</span>
       <button class="chip" data-t="flirt" data-id="${S.cv}" aria-pressed="${!!c.flirt}">Флірт</button>
-      <button class="chip" data-t="mood" data-id="${S.cv}" aria-pressed="${!!c.mood}">Настрій</button></div></div>
+      <button class="chip" data-t="mood" data-id="${S.cv}" aria-pressed="${!!c.mood}">Настрій</button></div>
+    <div class="seg" role="tablist" aria-label="Розділ чату">
+      <button role="tab" data-sub="del" aria-selected="${S.csub !== "ai"}">Видалене${S.cunread && S.cunread.del ? `<span class="bd">${S.cunread.del}</span>` : ""}</button>
+      <button role="tab" data-sub="ai" aria-selected="${S.csub === "ai"}">Флірт і настрій${S.cunread && S.cunread.ai ? `<span class="bd">${S.cunread.ai}</span>` : ""}</button></div></div>
     <div id="feed">${body}</div>`;
 }
 
@@ -694,18 +703,31 @@ async function loadFeedChats() {
   if (S.tab === "chats" && S.cv == null) refreshList();
 }
 
-async function openChat(id) {
+async function openChat(id, sub) {
   { const cc = (S.cchats || []).find((x) => x.chat_id === id); if (cc) cc.count = 0; }
+  S.csub = sub === "ai" ? "ai" : "del"; S.cunread = { del: 0, ai: 0 };
   listScroll = window.scrollY; S.cv = id; S.citems = null; S.hasMore = false; S.itemsErr = null; buzz(); render(); window.scrollTo(0, 0);
-  try { const j = await api("feed", { chat_id: id }); S.citems = j.items || []; S.hasMore = !!j.has_more; }
-  catch (e) { S.citems = []; S.itemsErr = e; }
+  try {
+    const j = await api("feed", { chat_id: id, group: S.csub, open: true });
+    S.citems = j.items || []; S.hasMore = !!j.has_more;
+    if (j.counts) { S.cunread = { del: j.counts.del || 0, ai: j.counts.ai || 0 }; S.cunread[S.csub] = 0; }
+  } catch (e) { S.citems = []; S.itemsErr = e; }
   if (S.cv === id) { S.scrollDown = true; render(); }
 }
+async function switchSub(sub) {
+  if (S.cv == null || S.csub === sub) return;
+  const id = S.cv; S.csub = sub; if (S.cunread) S.cunread[sub] = 0;
+  S.citems = null; S.hasMore = false; S.itemsErr = null; buzz(); render(); window.scrollTo(0, 0);
+  try { const j = await api("feed", { chat_id: id, group: sub }); S.citems = j.items || []; S.hasMore = !!j.has_more; }
+  catch (e) { S.citems = []; S.itemsErr = e; }
+  if (S.cv === id && S.csub === sub) { S.scrollDown = true; render(); }
+}
+document.addEventListener("click", (ev) => { const b = ev.target.closest("[data-sub]"); if (b) switchSub(b.dataset.sub); });
 
 async function moreFeed() {
   const first = S.citems && S.citems[0]; if (!first) return;
   try {
-    const j = await api("feed", { chat_id: S.cv, before_id: first.id });
+    const j = await api("feed", { chat_id: S.cv, before_id: first.id, group: S.csub });
     S.citems = [...(j.items || []), ...S.citems]; S.hasMore = !!j.has_more; render();
   } catch (e) { toast(errText(e)); }
 }
@@ -869,9 +891,9 @@ async function pushAction(a) {
 }
 document.addEventListener("click", (ev) => { const b = ev.target.closest("[data-push]"); if (b) pushAction(b.dataset.push); });
 function goFromHash() {
-  const m = /^#go=(cal|chats|ai|bot)(?::(-?\d+))?$/.exec(location.hash); if (!m) return;
+  const m = /^#go=(cal|chats|ai|bot)(?::(-?\d+))?(?::(ai|del))?$/.exec(location.hash); if (!m) return;
   history.replaceState(null, "", location.pathname + location.search);
-  if (m[1] === "chats" && m[2]) { S.tab = "chats"; openChat(+m[2]); } else goTab(m[1]);
+  if (m[1] === "chats" && m[2]) { S.tab = "chats"; openChat(+m[2], m[3]); } else goTab(m[1]);
 }
 
 // Живе оновлення: події й чати підтягуються, коли застосунок знову відкрито, коли прийшов push і раз на хвилину
