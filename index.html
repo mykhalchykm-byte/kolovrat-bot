@@ -283,6 +283,13 @@ html.web { --safe-top: calc(env(safe-area-inset-top, 0px) + 8px); }
 .login .btn { width: 100%; height: 50px; font-size: 16px; }
 .login .err { color: var(--danger); font-size: 14px; min-height: 20px; margin-bottom: 8px; }
 .pushbox { padding: 16px 18px 18px; }
+.setbox { padding: 6px 18px 12px; }
+.setbox h2 { font-size: 15px; font-weight: 750; margin: 12px 0 2px; }
+.setrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-top: 1px solid var(--line); }
+.setbox h2 + .setrow { border-top: 0; }
+.setrow > span { font-size: 15px; color: var(--ink); }
+.setrow select { height: 38px; min-width: 128px; padding: 0 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 15px; font-weight: 600; }
+.setbox .note { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
 .pushbox .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .pushbox .note { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
 </style>
@@ -298,7 +305,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
 // Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
-const APP_VER = "v9 · у списку чатів видалене";
+const APP_VER = "v10 · налаштування сповіщень про події";
 const KEY_LS = "kb_app_key";
 const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
 const setKey = (v) => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (_) {} };
@@ -465,6 +472,7 @@ function viewBot() {
       <div class="stat"><span>Нейромережа</span><span>${esc(S.ai || "не підключено")}${S.editor ? " + " + esc(typeof S.editor === "string" ? S.editor : "редактор") : ""}</span></div>
       <div class="stat"><span>Група з темами</span><span>${S.hub.length ? "створена" : "не створена (/hub)"}</span></div>
       <div class="stat"><span>Пошук планів</span><span>у всіх чатах</span></div></section>
+    ${settingsBlock()}
     ${pushBlock()}
     <p class="hint">Флірт підказує відповіді, настрій аналізує співрозмовника. Вмикайте для окремих чатів.</p>
     <input class="search" id="q" type="search" placeholder="Знайти чат за іменем" value="${esc(S.q)}" aria-label="Знайти чат за іменем" autocomplete="off">
@@ -789,6 +797,7 @@ function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTi
 
 // ---------- демо-режим (без Telegram): сторінка/#demo ----------
 function demoApi(action, body) {
+  if (action === "settings_set") { window.__demoSet = body.settings; return Promise.resolve({ settings: body.settings }); }
   const now = Date.now();
   const mk = (id, title, dh, dur, status, extra = {}) => ({ id, title, start_at: new Date(now + dh * 3600e3).toISOString(), end_at: new Date(now + (dh * 60 + dur) * 60e3).toISOString(), notes: null, source_name: null, remind_min: 30, status, ...extra });
   window.__demo ||= {
@@ -807,7 +816,7 @@ function demoApi(action, body) {
     6: [ago(300, { id: 5, kind: "mood", quote: "[17.11 06:00] ок", body: "😊 Настрій: нейтральний, стриманий.\n💓 Інтерес: 4/10, відповіді короткі." })],
   };
   window.__demo.ai ||= [{ role: "user", content: "Що в мене сьогодні?" }, { role: "assistant", content: "Сьогодні три події: дзвінок щодо проєкту о 12:50, кіно з Катею о 15:50 і вільний вечір. Можу запропонувати час для прогулянки." }];
-  if (action === "init") return Promise.resolve({ tz: "Europe/Kyiv", ai: "Groq", editor: "Claude", hub: ["flirt"], events: D.events });
+  if (action === "init") return Promise.resolve({ tz: "Europe/Kyiv", ai: "Groq", editor: "Claude", hub: ["flirt"], events: D.events, settings: { day_notice: true, morning_hour: 8, evening_hour: 20, morning_limit: 12, remind_min: 30 } });
   if (action === "feed_chats") {
     const rows = D.chats.map((c) => { const f = D.feed[c.chat_id]; const l = f && [...f].reverse().find((x) => x.kind === "deleted" || x.kind === "edited"); return { ...c, last_kind: l ? l.kind : null, last_body: l ? l.body : "", last_at: l ? l.at : null, count: f ? f.length : 0 }; });
     rows.sort((a, b) => (b.last_at || "").localeCompare(a.last_at || ""));
@@ -858,6 +867,38 @@ async function pushState() {
   catch (_) { S.push = { sub: false }; }
   if (S.tab === "bot") render();
 }
+// ---------- налаштування сповіщень про події ----------
+function settingsBlock() {
+  const st = S.settings; if (!st) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  const opts = (vals, cur, fmt) => { const v = vals.includes(cur) ? vals : [...vals, cur].sort((a, b) => a - b); return v.map((x) => `<option value="${x}"${x === cur ? " selected" : ""}>${fmt(x)}</option>`).join(""); };
+  const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+  const hh = (x) => `${pad(x)}:00`;
+  const remFmt = (m) => m === 0 ? "у момент події" : m < 60 ? `за ${m} хв` : m % 60 === 0 ? `за ${m / 60} год` : `за ${m} хв`;
+  const day = st.day_notice;
+  return `<section class="block setbox" aria-label="Сповіщення про події"><h2>Сповіщення про події</h2>
+    <div class="setrow"><span>Нагадати перед подією</span><select data-set="remind_min" aria-label="Нагадати перед подією">${opts([0, 5, 10, 15, 30, 60, 120, 180], st.remind_min, remFmt)}</select></div>
+    <div class="setrow"><span>Нагадування на день події</span><button class="chip" data-setbtn="day_notice" aria-pressed="${day}">${day ? "Увімкнено" : "Вимкнено"}</button></div>
+    ${day ? `<div class="setrow"><span>Зранку в день події о</span><select data-set="morning_hour" aria-label="Година ранкового нагадування">${opts(range(5, 12), st.morning_hour, hh)}</select></div>
+    <div class="setrow"><span>Ранковою вважати подію до</span><select data-set="morning_limit" aria-label="Подія вважається ранковою до">${opts(range(8, 15), st.morning_limit, hh)}</select></div>
+    <div class="setrow"><span>Для ранкових: ввечері перед подією о</span><select data-set="evening_hour" aria-label="Година вечірнього нагадування">${opts(range(17, 23), st.evening_hour, hh)}</select></div>
+    <p class="note">Подія до ${hh(st.morning_limit)}: нагадаємо ввечері о ${hh(st.evening_hour)} напередодні. Пізніша: зранку в день події о ${hh(st.morning_hour)}.</p>` : `<p class="note">Нагадування «перед подією» працює завжди.</p>`}
+  </section>`;
+}
+async function saveSetting(key, value) {
+  const prev = S.settings; const next = { ...prev, [key]: value };
+  S.settings = next; const y = window.scrollY; render(); window.scrollTo(0, y);
+  try {
+    const j = await api("settings_set", { settings: next });
+    S.settings = j.settings || next; buzz(); toast("Збережено");
+  } catch (e) {
+    S.settings = prev; render(); window.scrollTo(0, y);
+    toast(e.code === "db" ? "Створіть таблицю app_settings у Supabase (settings.sql)" : errText(e));
+  }
+}
+document.addEventListener("change", (ev) => { const el = ev.target.closest("[data-set]"); if (el) saveSetting(el.dataset.set, Number(el.value)); });
+document.addEventListener("click", (ev) => { const b = ev.target.closest("[data-setbtn]"); if (b && S.settings) saveSetting(b.dataset.setbtn, !S.settings[b.dataset.setbtn]); });
+
 function pushBlock() {
   let body;
   if (initData) body = `<p class="note">Сповіщення на iPhone вмикаються в застосунку з головного екрана (не в Telegram).</p>`;
@@ -927,7 +968,7 @@ async function start() {
   }
   try {
     const j = await api("init");
-    Object.assign(S, { tz: j.tz || S.tz, ai: j.ai, editor: !!j.editor, hub: j.hub || [], events: j.events || [] });
+    Object.assign(S, { tz: j.tz || S.tz, ai: j.ai, editor: !!j.editor, hub: j.hub || [], events: j.events || [], settings: j.settings || null });
     S.sel = todayKey();
     render();
     if (!initData && !DEMO) { pushState(); goFromHash(); }
