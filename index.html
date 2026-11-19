@@ -294,7 +294,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
 // Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
-const APP_VER = "v6 · лічильник непрочитаних";
+const APP_VER = "v7 · автододавання і живе оновлення";
 const KEY_LS = "kb_app_key";
 const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
 const setKey = (v) => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (_) {} };
@@ -874,6 +874,23 @@ function goFromHash() {
   if (m[1] === "chats" && m[2]) { S.tab = "chats"; openChat(+m[2]); } else goTab(m[1]);
 }
 
+// Живе оновлення: події й чати підтягуються, коли застосунок знову відкрито, коли прийшов push і раз на хвилину
+let refreshBusy = false;
+async function refreshEvents() {
+  if (refreshBusy || DEMO || (!initData && !getKey())) return;
+  refreshBusy = true;
+  try {
+    const j = await api("events");
+    S.events = j.events || [];
+    if (S.tab === "cal") render();
+    if (S.tab === "chats" && S.cv == null) loadFeedChats();
+  } catch (_) {} finally { refreshBusy = false; }
+}
+function startLive() {
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") refreshEvents(); });
+  setInterval(() => { if (document.visibilityState === "visible") refreshEvents(); }, 60000);
+}
+
 async function start() {
   if (tg && initData) { tg.ready(); tg.expand(); applyTheme(); tg.onEvent && tg.onEvent("themeChanged", applyTheme); }
   else { syncThemeColor(); try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncThemeColor); } catch (_) {} }
@@ -881,7 +898,7 @@ async function start() {
   if (!initData && !DEMO) {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js").catch(() => {});
-      navigator.serviceWorker.addEventListener("message", (ev) => { if (ev.data && ev.data.go) { location.hash = "#go=" + ev.data.go; goFromHash(); } });
+      navigator.serviceWorker.addEventListener("message", (ev) => { if (ev.data && ev.data.refresh) refreshEvents(); if (ev.data && ev.data.go) { location.hash = "#go=" + ev.data.go; goFromHash(); } });
     }
     window.addEventListener("hashchange", () => { if (S.events && getKey()) goFromHash(); });
     if (!getKey()) { showLogin(); return; }
@@ -892,6 +909,7 @@ async function start() {
     S.sel = todayKey();
     render();
     if (!initData && !DEMO) { pushState(); goFromHash(); }
+    if (!DEMO && !window.__live) { window.__live = true; startLive(); }
   } catch (e) {
     if (!initData && e.code === "auth") return;
     app.innerHTML = `<div class="fatal"><b>Не вдалося відкрити</b>${esc(errText(e))}</div>`;
