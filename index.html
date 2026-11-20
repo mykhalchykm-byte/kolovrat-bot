@@ -15,7 +15,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="БОТ">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#f5f3f6">
+<meta name="theme-color" content="#f4f2f9">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root {
@@ -25,7 +25,7 @@
       --bg: var(--tg-theme-bg-color, #ffffff);
       --text: var(--tg-theme-text-color, #000000);
       --hint: var(--tg-theme-hint-color, #8e8e93);
-      --accent: #ff80ab;
+      --accent: #6d45c9;
       --card-bg: var(--tg-theme-secondary-bg-color, #f9f9f9);
       --border: rgba(0, 0, 0, 0.08);
     }
@@ -51,14 +51,14 @@
       overscroll-behavior-y: none;
     }
 :root {
-  --bg: #f5f3f6;
+  --bg: #f4f2f9;
   --surface: #ffffff;
-  --ink: #1e1a22;
-  --muted: #6f6676;
-  --line: #e6e1e9;
-  --accent: #8e2f5c;
+  --ink: #1b1826;
+  --muted: #6a6479;
+  --line: #e3deef;
+  --accent: #6d45c9;
   --accent-ink: #ffffff;
-  --accent-soft: #f3dde8;
+  --accent-soft: #e9e1f8;
   --amber: #a86a0f;
   --amber-soft: #f8ecd2;
   --danger: #b3261e;
@@ -69,15 +69,15 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #141116; --surface: #1e1a22; --ink: #f1ecf4; --muted: #a298ab; --line: #2d2733;
-    --accent: #e58ab4; --accent-ink: #2a0f1d; --accent-soft: #3a2231;
+    --bg: #13111b; --surface: #1d1a28; --ink: #efebf8; --muted: #a59db8; --line: #2c2839;
+    --accent: #b697f5; --accent-ink: #1d0f3a; --accent-soft: #2f2650;
     --amber: #e2b04a; --amber-soft: #38301c; --danger: #ff8a80;
     --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
   }
 }
 :root[data-theme="dark"] {
-  --bg: #141116; --surface: #1e1a22; --ink: #f1ecf4; --muted: #a298ab; --line: #2d2733;
-  --accent: #e58ab4; --accent-ink: #2a0f1d; --accent-soft: #3a2231;
+  --bg: #13111b; --surface: #1d1a28; --ink: #efebf8; --muted: #a59db8; --line: #2c2839;
+  --accent: #b697f5; --accent-ink: #1d0f3a; --accent-soft: #2f2650;
   --amber: #e2b04a; --amber-soft: #38301c; --danger: #ff8a80;
   --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
 }
@@ -283,6 +283,17 @@ html.web { --safe-top: calc(env(safe-area-inset-top, 0px) + 8px); }
 .login .btn { width: 100%; height: 50px; font-size: 16px; }
 .login .err { color: var(--danger); font-size: 14px; min-height: 20px; margin-bottom: 8px; }
 .pushbox { padding: 16px 18px 18px; }
+.evw { position: relative; }
+.ev { padding-right: 52px; }
+.pen { position: absolute; right: 0; top: 16px; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
+.pen svg { width: 18px; height: 18px; }
+.pen:active { background: var(--accent-soft); color: var(--accent); }
+.hact { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.robo { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.robo svg { width: 24px; height: 24px; }
+.who { color: var(--muted); font-size: 13px; margin: -2px 0 8px; }
+.setrow.dev { padding: 10px 0; align-items: center; }
+.setbox .pill { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 9px; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 700; vertical-align: middle; }
 .setbox { padding: 6px 18px 12px; }
 .setbox h2 { font-size: 15px; font-weight: 750; margin: 12px 0 2px; }
 .setrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-top: 1px solid var(--line); }
@@ -305,9 +316,22 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
 // Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
-const APP_VER = "v10 · налаштування сповіщень про події";
+const APP_VER = "v11 · БОТІК, пристрої, олівець, фіолетова тема";
 const KEY_LS = "kb_app_key";
 const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
+const getTok = () => { try { return localStorage.getItem("kb_dev_token") || ""; } catch (_) { return ""; } };
+const setTok = (v) => { try { v ? localStorage.setItem("kb_dev_token", v) : localStorage.removeItem("kb_dev_token"); } catch (_) {} };
+function deviceLabel() {
+  const u = navigator.userAgent;
+  const os = /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" : /Mac/.test(u) ? "Mac" : /Windows/.test(u) ? "Windows" : /Linux/.test(u) ? "Linux" : "Пристрій";
+  const br = /Edg\//.test(u) ? "Edge" : /OPR\//.test(u) ? "Opera" : /Firefox\//.test(u) ? "Firefox" : /CriOS|Chrome\//.test(u) ? "Chrome" : /Safari\//.test(u) ? "Safari" : "";
+  const app = (navigator.standalone || matchMedia("(display-mode: standalone)").matches) ? "застосунок" : br;
+  return app ? `${os} · ${app}` : os;
+}
+async function migrateToken() {
+  if (getTok() || !getKey()) return;
+  try { const j = await api("login", { label: deviceLabel() }); if (j.token) { setTok(j.token); setKey(""); } } catch (_) {}
+}
 const setKey = (v) => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (_) {} };
 if (!initData) document.documentElement.classList.add("web");
 
@@ -350,12 +374,12 @@ async function api(action, body = {}) {
   if (DEMO) return demoApi(action, body);
   const r = await fetch(API_URL, {
     method: "POST",
-    headers: initData ? { "content-type": "application/json", "x-init-data": initData } : { "content-type": "application/json", "x-app-key": getKey() },
+    headers: initData ? { "content-type": "application/json", "x-init-data": initData } : { "content-type": "application/json", ...(getTok() ? { "x-device-token": getTok() } : { "x-app-key": getKey() }) },
     body: JSON.stringify({ action, ...body }),
   });
   let j = {};
   try { j = await r.json(); } catch (_) {}
-  if (r.status === 401 && !initData) { setKey(""); showLogin("Невірний код доступу."); }
+  if (r.status === 401 && !initData) { const had = !!getTok(); setKey(""); setTok(""); S.devices = undefined; showLogin(had ? "Вхід на цьому пристрої скасовано. Введіть код знову." : "Невірний код доступу."); }
   if (!r.ok) { const e = new Error(j.error || "http"); e.code = j.error; e.status = r.status; e.detail = j.message; throw e; }
   return j;
 }
@@ -369,6 +393,7 @@ function errText(e) {
 
 // ---------- відмальовування ----------
 const ICON = {
+  pen: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 2.8 15.2 5.5 6 14.7 2.8 15.2 3.3 12z"/><path d="M10.8 4.5l2.7 2.7"/></svg>',
   plus: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>',
   prev: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3 5 9l6 6"/></svg>',
   next: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 3 6 6-6 6"/></svg>',
@@ -399,7 +424,7 @@ function tabbar() {
   return `<nav class="tabbar"><div class="tabs" role="tablist">
     <button class="tab" role="tab" data-tab="cal" aria-selected="${S.tab === "cal"}">${ICON.cal}Календар</button>
     <button class="tab" role="tab" data-tab="chats" aria-selected="${S.tab === "chats"}">${ICON.chats}Чати</button>
-    <button class="tab" role="tab" data-tab="ai" aria-selected="${S.tab === "ai"}">${ICON.ai}Асистент</button>
+    <button class="tab" role="tab" data-tab="ai" aria-selected="${S.tab === "ai"}">${ICON.ai}БОТІК</button>
     <button class="tab" role="tab" data-tab="bot" aria-selected="${S.tab === "bot"}">${ICON.bot}Бот</button>
   </div></nav>`;
 }
@@ -445,6 +470,7 @@ function viewCal() {
       return mark + `<li><div class="evw${open ? " open" : ""}"><button class="ev${past ? " past" : ""}" data-ev="${e.id}" aria-expanded="${open}">
         <div><div class="tm num">${timeStr(e.start_at)}</div><div class="du">${esc(durLabel(e))}</div></div>
         <div><div class="ti">${esc(e.title)}</div>${meta ? `<div class="me">${esc(meta)}</div>` : ""}</div></button>
+        <button class="pen" data-edit="${e.id}" aria-label="Змінити подію">${ICON.pen}</button>
         <div class="more">${e.notes ? `<p>${esc(e.notes)}</p>` : ""}<button class="btn ghost danger" data-del="${e.id}">Видалити</button></div></div></li>`;
     }).join("");
     if (!marked && sel === today) list += `<li class="now" aria-label="Зараз">зараз</li>`;
@@ -458,26 +484,40 @@ function viewCal() {
 }
 
 function viewBot() {
-  const chats = S.chats;
-  let rows = "";
-  if (chats === null) rows = `<div class="empty">Завантаження…</div>`;
-  else if (!chats.length) rows = `<div class="empty"><b>${S.q ? "Нікого не знайдено" : "Поки немає чатів"}</b>${S.q ? "Перевірте написання імені." : "Бот бачить лише тих, хто написав вам після підключення."}</div>`;
-  else rows = chats.map((c) => `<div class="chat"><div class="av">${esc((c.name || "?").trim().charAt(0).toUpperCase())}</div>
-    <div class="nm">${esc(c.name)}</div><div class="chips">
-    <button class="chip" data-t="flirt" data-id="${c.chat_id}" aria-pressed="${!!c.flirt}">Флірт</button>
-    <button class="chip" data-t="mood" data-id="${c.chat_id}" aria-pressed="${!!c.mood}">Настрій</button></div></div>`).join("");
+  if (S.devices === undefined) loadDevices();
   return `<header class="dayhead"><div class="daymeta"><div class="wd" style="font-size:28px;font-weight:800;letter-spacing:-.02em">Бот</div>
-    <div class="mo">Що бот робить у чатах</div></div></header>
-    <section class="block" aria-label="Стан">
-      <div class="stat"><span>Нейромережа</span><span>${esc(S.ai || "не підключено")}${S.editor ? " + " + esc(typeof S.editor === "string" ? S.editor : "редактор") : ""}</span></div>
-      <div class="stat"><span>Група з темами</span><span>${S.hub.length ? "створена" : "не створена (/hub)"}</span></div>
-      <div class="stat"><span>Пошук планів</span><span>у всіх чатах</span></div></section>
+    <div class="mo">Налаштування застосунку</div></div></header>
     ${settingsBlock()}
     ${pushBlock()}
-    <p class="hint">Флірт підказує відповіді, настрій аналізує співрозмовника. Вмикайте для окремих чатів.</p>
-    <input class="search" id="q" type="search" placeholder="Знайти чат за іменем" value="${esc(S.q)}" aria-label="Знайти чат за іменем" autocomplete="off">
-    <section class="block" aria-label="Чати">${rows}</section>`;
+    ${devicesBlock()}`;
 }
+async function loadDevices() {
+  S.devices = S.devices || null; // null = завантаження
+  try { const j = await api("devices"); S.devices = j.devices || []; S.tgSession = !!j.telegram; S.devErr = null; }
+  catch (e) { S.devices = []; S.devErr = e; }
+  if (S.tab === "bot") { const y = window.scrollY; render(); window.scrollTo(0, y); }
+}
+function devicesBlock() {
+  const fmt = (x) => new Date(x).toLocaleString("uk-UA", { timeZone: S.tz, day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  let rows;
+  if (S.devices == null) rows = `<p class="note">Завантаження…</p>`;
+  else if (S.devErr) rows = `<p class="note">Список недоступний: виконайте v11.sql у Supabase.</p>`;
+  else if (!S.devices.length) rows = `<p class="note">Поки немає пристроїв із входом за кодом.${S.tgSession ? " Ви відкрили застосунок із Telegram." : ""}</p>`;
+  else rows = S.devices.map((d) => `<div class="setrow dev"><div><b>${esc(d.label || "Пристрій")}</b>${d.current ? `<span class="pill">цей пристрій</span>` : ""}<div class="note" style="margin:2px 0 0">Остання активність: ${fmt(d.last_seen)}</div></div><button class="btn ghost danger" data-devdel="${d.id}">${d.current ? "Вийти" : "Видалити"}</button></div>`).join("");
+  return `<section class="block setbox" aria-label="Пристрої"><h2>Пристрої з входом</h2>${rows}<p class="note">Видалений пристрій одразу втрачає доступ і має знову ввести код. Вхід через Telegram керується вашим акаунтом Telegram.</p></section>`;
+}
+document.addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-devdel]"); if (!b) return;
+  const id = +b.dataset.devdel, cur = (S.devices || []).find((d) => d.id === id);
+  if (!confirm(cur && cur.current ? "Вийти на цьому пристрої?" : "Видалити цей пристрій? Йому доведеться знову ввести код.")) return;
+  (async () => {
+    try {
+      const j = await api("device_delete", { id });
+      if (j.self) { setTok(""); setKey(""); S.devices = undefined; showLogin(); return; }
+      S.devices = j.devices || []; render(); toast("Пристрій видалено");
+    } catch (e) { toast(errText(e)); }
+  })();
+});
 
 
 // ---------- Чати: стрічка по кожній людині ----------
@@ -541,7 +581,8 @@ function card(it) {
       inner += `<div class="bd">${esc(it.body)}</div>`;
     }
   }
-  return `<article class="fc ${esc(it.kind)}"><div class="fh"><b>${esc(label)}</b><time class="num">${timeStr(it.at)}</time></div>${inner}</article>`;
+  const who = it.actor && (it.kind === "deleted" || it.kind === "edited") ? `<div class="who">${it.kind === "edited" ? "Змінив(ла)" : "Повідомлення від"}: ${esc(it.actor)}</div>` : "";
+  return `<article class="fc ${esc(it.kind)}"><div class="fh"><b>${esc(label)}</b><time class="num">${timeStr(it.at)}</time></div>${who}${inner}</article>`;
 }
 
 function viewChat() {
@@ -577,34 +618,37 @@ const SUGG = ["Що в мене сьогодні?", "Заплануй на за�
 function msgsHtml() {
   if (S.msgs === null) return `<div class="empty">Завантаження…</div>`;
   if (!S.msgs.length && !S.busy) {
-    return `<div class="empty"><b>Запитайте що завгодно</b>Асистент знає ваш календар і може додавати та переносити події.</div>
+    return `<div class="empty"><b>Запитайте що завгодно</b>БОТІК знає ваш календар і може додавати та переносити події. Кнопка з роботом угорі надішле аналіз бота.</div>
       <div class="sugg">${SUGG.map((t) => `<button class="chip" data-sg="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;
   }
   return S.msgs.map((m) => `<div class="bub ${m.role === "user" ? "me" : "bot"}${m.err ? " err" : ""}">${esc(m.content)}</div>`).join("")
-    + (S.busy ? `<div class="bub bot typing" role="status" aria-label="Асистент пише"><i></i><i></i><i></i></div>` : "");
+    + (S.busy ? `<div class="bub bot typing" role="status" aria-label="БОТІК пише"><i></i><i></i><i></i></div>` : "");
 }
 function viewAI() {
-  return `<header class="dayhead"><div class="daymeta"><div class="wd" style="font-size:28px;font-weight:800;letter-spacing:-.02em">Асистент</div>
+  return `<header class="dayhead"><div class="daymeta"><div class="wd" style="font-size:28px;font-weight:800;letter-spacing:-.02em">БОТІК</div>
     <div class="mo">Питання, плани, поради</div></div>
-    ${S.msgs && S.msgs.length ? `<button class="linkbtn" data-aclear>Очистити</button>` : ""}</header>
+    <div class="hact">${S.msgs && S.msgs.length ? `<button class="linkbtn" data-aclear>Очистити</button>` : ""}<button class="robo" data-report aria-label="Аналіз бота" title="Аналіз бота">${ICON.bot}</button></div></header>
     <div class="msgs" id="msgs">${msgsHtml()}</div>
-    <div class="composer"><form id="af"><textarea id="ai" rows="1" maxlength="4000" placeholder="Напишіть асистенту" aria-label="Повідомлення асистенту">${esc(S.draft)}</textarea>
+    <div class="composer"><form id="af"><textarea id="ai" rows="1" maxlength="4000" placeholder="Напишіть БОТІКу" aria-label="Повідомлення для БОТІКа">${esc(S.draft)}</textarea>
     <button class="send" type="submit" aria-label="Надіслати" disabled>${ICON.send}</button></form></div>`;
 }
 
 function sheet() {
-  const sel = S.sel, now = new Date();
-  const hh = sel === todayKey() ? String((+timeStr(now.toISOString()).slice(0, 2) + 1) % 24).padStart(2, "0") + ":00" : "12:00";
-  return `<div class="sheet-wrap" data-close><form class="sheet" id="f" role="dialog" aria-label="Нова подія">
-    <h3>Нова подія</h3>
-    <label class="field"><span>Назва</span><input class="inp" name="title" maxlength="200" required placeholder="Наприклад, кава з Катею" autocomplete="off"></label>
+  const ed = S.edit ? S.events.find((e) => e.id === S.edit) : null;
+  const sel = ed ? dayKey(ed.start_at) : S.sel, now = new Date();
+  const hh = ed ? timeStr(ed.start_at) : sel === todayKey() ? String((+timeStr(now.toISOString()).slice(0, 2) + 1) % 24).padStart(2, "0") + ":00" : "12:00";
+  const curDur = ed ? Math.max(5, Math.round((new Date(ed.end_at) - new Date(ed.start_at)) / 60000)) : 60, curRem = ed && ed.remind_min != null ? ed.remind_min : 30;
+  const withCur = (arr, c) => (arr.includes(c) ? arr : [...arr, c].sort((a, b) => a - b));
+  return `<div class="sheet-wrap" data-close><form class="sheet" id="f" role="dialog" aria-label="${ed ? "Змінити подію" : "Нова подія"}">
+    <h3>${ed ? "Змінити подію" : "Нова подія"}</h3>
+    <label class="field"><span>Назва</span><input class="inp" name="title" maxlength="200" required placeholder="Наприклад, кава з Катею" autocomplete="off" value="${esc(ed ? ed.title : "")}"></label>
     <div class="row2"><label class="field"><span>Дата</span><input class="inp" type="date" name="date" value="${sel}" required></label>
     <label class="field"><span>Час</span><input class="inp num" type="time" name="time" value="${hh}" required></label></div>
-    <div class="field"><span>Тривалість</span><div class="opts" data-group="dur">${[30, 60, 120, 240].map((m, i) => `<button type="button" class="chip" data-v="${m}" aria-pressed="${i === 1}">${m < 60 ? m + " хв" : m / 60 + " г"}</button>`).join("")}</div></div>
-    <div class="field"><span>Нагадати</span><div class="opts" data-group="rem">${[10, 30, 60, 1440].map((m, i) => `<button type="button" class="chip" data-v="${m}" aria-pressed="${i === 1}">${remLabel(m)}</button>`).join("")}</div></div>
-    <label class="field"><span>Нотатка</span><textarea class="inp" name="notes" maxlength="500" placeholder="Місце, деталі"></textarea></label>
+    <div class="field"><span>Тривалість</span><div class="opts" data-group="dur">${withCur([30, 60, 120, 240], curDur).map((m) => `<button type="button" class="chip" data-v="${m}" aria-pressed="${m === curDur}">${m < 60 ? m + " хв" : m / 60 + " г"}</button>`).join("")}</div></div>
+    <div class="field"><span>Нагадати</span><div class="opts" data-group="rem">${withCur([10, 30, 60, 1440], curRem).map((m) => `<button type="button" class="chip" data-v="${m}" aria-pressed="${m === curRem}">${remLabel(m)}</button>`).join("")}</div></div>
+    <label class="field"><span>Нотатка</span><textarea class="inp" name="notes" maxlength="500" placeholder="Місце, деталі">${esc(ed && ed.notes ? ed.notes : "")}</textarea></label>
     <div class="err" id="err" role="alert"></div>
-    <div class="acts"><button type="button" class="btn ghost" data-cancel>Скасувати</button><button class="btn" type="submit">Додати подію</button></div></form></div>`;
+    <div class="acts"><button type="button" class="btn ghost" data-cancel>Скасувати</button><button class="btn" type="submit">${ed ? "Зберегти" : "Додати подію"}</button></div></form></div>`;
 }
 
 // ---------- події ----------
@@ -618,7 +662,8 @@ function bind() {
   document.querySelectorAll("[data-del]").forEach((b) => b.onclick = () => mutate("event_delete", { id: +b.dataset.del }, "Подію видалено"));
   document.querySelectorAll("[data-ok]").forEach((b) => b.onclick = () => mutate("event_status", { id: +b.dataset.ok, status: "confirmed" }, "Додано в календар"));
   document.querySelectorAll("[data-no]").forEach((b) => b.onclick = () => mutate("event_status", { id: +b.dataset.no, status: "dismissed" }, "Пропущено"));
-  const add = $("[data-add]"); if (add) add.onclick = () => { S.sheet = true; render(); const t = $('input[name="title"]'); t && t.focus(); };
+  document.querySelectorAll("[data-edit]").forEach((b) => b.onclick = () => { S.edit = +b.dataset.edit; S.sheet = true; render(); });
+  const add = $("[data-add]"); if (add) add.onclick = () => { S.edit = null; S.sheet = true; render(); const t = $('input[name="title"]'); t && t.focus(); };
   document.querySelectorAll(".chat .chip, .tgl .chip").forEach((b) => b.onclick = () => toggleChat(b));
   bindRows();
   const cq = $("#cq"); if (cq) cq.oninput = () => { S.cq = cq.value; refreshList(); };
@@ -631,7 +676,7 @@ function bind() {
 }
 
 function bindSheet() {
-  const close = () => { S.sheet = false; render(); };
+  const close = () => { S.sheet = false; S.edit = null; render(); };
   $("[data-cancel]").onclick = close;
   $(".sheet-wrap").onclick = (e) => { if (e.target.classList.contains("sheet-wrap")) close(); };
   document.querySelectorAll(".opts .chip").forEach((b) => b.onclick = () => {
@@ -644,8 +689,8 @@ function bindSheet() {
     if (!title) { $("#err").textContent = "Введіть назву події."; return; }
     const btn = f.querySelector("[type=submit]"); btn.disabled = true;
     try {
-      const j = await api("event_add", { title, start: `${f.date.value}T${f.time.value}`, duration_min: v("dur"), remind_min: v("rem"), notes: f.notes.value.trim() });
-      S.events = j.events; S.sel = f.date.value; S.sheet = false; buzz("medium"); render(); toast("Подію додано");
+      const j = await api(S.edit ? "event_edit" : "event_add", { ...(S.edit ? { id: S.edit } : {}), title, start: `${f.date.value}T${f.time.value}`, duration_min: v("dur"), remind_min: v("rem"), notes: f.notes.value.trim() });
+      const wasEdit = !!S.edit; S.events = j.events; S.sel = f.date.value; S.sheet = false; S.edit = null; buzz("medium"); render(); toast(wasEdit ? "Зміни збережено" : "Подію додано");
     } catch (err) { btn.disabled = false; $("#err").textContent = errText(err); }
   };
 }
@@ -686,7 +731,7 @@ function goTab(t) {
   if (t === "ai") S.scrollDown = true;
   render();
   if (t !== "ai") window.scrollTo(0, 0);
-  if (t === "bot" && S.chats === null) loadChats();
+  if (t === "bot") loadDevices();
   if (t === "chats") loadFeedChats();
   if (t === "ai" && S.msgs === null) loadAI();
 }
@@ -775,6 +820,16 @@ async function sendAI(text) {
   S.busy = false; renderMsgs(); buzz();
 }
 
+async function sendReport() {
+  if (S.busy) return;
+  if (S.msgs === null) S.msgs = [];
+  S.busy = true; renderMsgs();
+  try { const j = await api("bot_report"); S.msgs.push({ role: "assistant", content: j.reply || "Не вдалося зібрати аналіз." }); }
+  catch (e) { S.msgs.push({ role: "assistant", content: errText(e), err: true }); }
+  S.busy = false; renderMsgs(); buzz();
+}
+document.addEventListener("click", (ev) => { if (ev.target.closest("[data-report]")) sendReport(); });
+
 function bindAI() {
   const f = $("#af"); if (!f) return;
   const t = $("#ai"), send = $(".send");
@@ -826,6 +881,10 @@ function demoApi(action, body) {
   if (action === "assistant_history") return Promise.resolve({ messages: D.ai });
   if (action === "assistant_send") return new Promise((r) => setTimeout(() => { const reply = "Це демо-відповідь. У справжньому застосунку тут відповідає ваш асистент."; D.ai.push({ role: "user", content: body.text }, { role: "assistant", content: reply }); r({ ok: true, reply, events: D.events }); }, 700));
   if (action === "assistant_clear") { D.ai = []; return Promise.resolve({ ok: true }); }
+  if (action === "event_edit") { const e = D.events.find((x) => x.id === body.id); if (e) { const ms = new Date(body.start).getTime(); e.title = body.title; e.start_at = new Date(ms).toISOString(); e.end_at = new Date(ms + body.duration_min * 60000).toISOString(); e.notes = body.notes || null; e.remind_min = body.remind_min; } return Promise.resolve({ events: D.events }); }
+  if (action === "devices") return Promise.resolve({ devices: [{ id: 1, label: "iPhone · застосунок", last_seen: new Date().toISOString(), current: true }, { id: 2, label: "Mac · Safari", last_seen: new Date(Date.now() - 86400000).toISOString(), current: false }] });
+  if (action === "device_delete") return Promise.resolve({ devices: [{ id: 1, label: "iPhone · застосунок", last_seen: new Date().toISOString(), current: true }] });
+  if (action === "bot_report") return Promise.resolve({ reply: "📊 Аналіз бота\n\n• Це демо-звіт. У справжньому застосунку тут стан бота й поради." });
   if (action === "chats") return Promise.resolve({ chats: D.chats.filter((c) => c.name.toLowerCase().includes((body.q || "").toLowerCase())) });
   if (action === "event_delete") D.events = D.events.filter((e) => e.id !== body.id);
   if (action === "event_status") D.events = D.events.map((e) => (e.id === body.id ? { ...e, status: body.status } : e)).filter((e) => e.status !== "dismissed");
@@ -902,14 +961,18 @@ document.addEventListener("click", (ev) => { const b = ev.target.closest("[data-
 function pushBlock() {
   let body;
   if (initData) body = `<p class="note">Сповіщення на iPhone вмикаються в застосунку з головного екрана (не в Telegram).</p>`;
-  else if (!pushOk()) body = `<p class="note">Щоб отримувати сповіщення, додайте застосунок на головний екран: Safari → «Поділитися» → «На екран "Додому"», потім відкрийте його з іконки (потрібен iOS 16.4 або новіший).</p>`;
+  else if (!pushOk()) body = /Android/.test(navigator.userAgent) ? `<p class="note">Щоб отримувати сповіщення, відкрийте сайт у Chrome: меню (⋮) → «Встановити застосунок» або «Додати на головний екран».</p>` : `<p class="note">Щоб отримувати сповіщення, додайте застосунок на головний екран: Safari → «Поділитися» → «На екран "Додому"», потім відкрийте його з іконки (потрібен iOS 16.4 або новіший).</p>`;
   else if (S.push && S.push.sub) body = `<div class="stat"><span>Сповіщення</span><span>увімкнено</span></div><div class="acts"><button class="btn" data-push="test">Надіслати тест</button><button class="btn ghost" data-push="off">Вимкнути</button></div>`;
   else body = `<div class="acts"><button class="btn" data-push="on">Увімкнути сповіщення</button></div><p class="note">Видалене, змінене, настрій, флірт, нові плани й нагадування приходитимуть на iPhone.</p>`;
-  const out = !initData && getKey() ? `<div class="acts"><button class="btn ghost" data-push="logout">Вийти з цього пристрою</button></div>` : "";
+  const out = installEv ? `<div class="acts"><button class="btn" data-push="install">Встановити застосунок</button></div>` : "";
   return `<section class="block pushbox" aria-label="Сповіщення">${body}${out}<p class="note">Версія застосунку: ${APP_VER}</p></section>`;
 }
+let installEv = null; // Android/Chrome: подія встановлення застосунку
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installEv = e; if (S.tab === "bot") render(); });
+window.addEventListener("appinstalled", () => { installEv = null; if (S.tab === "bot") render(); });
 async function pushAction(a) {
   try {
+    if (a === "install") { if (installEv) { installEv.prompt(); await installEv.userChoice; installEv = null; render(); } return; }
     if (a === "logout") { if (confirm("Вийти? Код доведеться ввести знову.")) logout(); return; }
     const reg = await navigator.serviceWorker.ready;
     if (a === "on") {
@@ -940,7 +1003,7 @@ function goFromHash() {
 // Живе оновлення: події й чати підтягуються, коли застосунок знову відкрито, коли прийшов push і раз на хвилину
 let refreshBusy = false;
 async function refreshEvents() {
-  if (refreshBusy || DEMO || (!initData && !getKey())) return;
+  if (refreshBusy || DEMO || (!initData && !getKey() && !getTok())) return;
   refreshBusy = true;
   try {
     const j = await api("events");
@@ -963,15 +1026,15 @@ async function start() {
       navigator.serviceWorker.register("sw.js").catch(() => {});
       navigator.serviceWorker.addEventListener("message", (ev) => { if (ev.data && ev.data.refresh) refreshEvents(); if (ev.data && ev.data.go) { location.hash = "#go=" + ev.data.go; goFromHash(); } });
     }
-    window.addEventListener("hashchange", () => { if (S.events && getKey()) goFromHash(); });
-    if (!getKey()) { showLogin(); return; }
+    window.addEventListener("hashchange", () => { if (S.events && (getKey() || getTok())) goFromHash(); });
+    if (!getKey() && !getTok()) { showLogin(); return; }
   }
   try {
     const j = await api("init");
     Object.assign(S, { tz: j.tz || S.tz, ai: j.ai, editor: !!j.editor, hub: j.hub || [], events: j.events || [], settings: j.settings || null });
     S.sel = todayKey();
     render();
-    if (!initData && !DEMO) { pushState(); goFromHash(); }
+    if (!initData && !DEMO) { pushState(); goFromHash(); migrateToken(); }
     if (!DEMO && !window.__live) { window.__live = true; startLive(); }
   } catch (e) {
     if (!initData && e.code === "auth") return;

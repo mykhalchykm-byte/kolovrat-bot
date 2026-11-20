@@ -1,5 +1,5 @@
 // Service worker: push-сповіщення + офлайн-запас для оболонки застосунку
-const CACHE = "kb-shell-v7";
+const CACHE = "kb-shell-v11";
 const SHELL = ["./", "icon-192.png", "icon-512.png", "manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
