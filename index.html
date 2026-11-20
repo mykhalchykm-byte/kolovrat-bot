@@ -288,6 +288,7 @@ html.web { --safe-top: calc(env(safe-area-inset-top, 0px) + 8px); }
 .pen { position: absolute; right: 0; top: 16px; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
 .pen svg { width: 18px; height: 18px; }
 .pen:active { background: var(--accent-soft); color: var(--accent); }
+.dayhead.astick { position: sticky; top: var(--safe-top); z-index: 7; background: var(--bg); margin: 0 -16px 8px; padding: 8px 16px 10px; border-bottom: 1px solid var(--line); }
 .hact { margin-left: auto; display: flex; align-items: center; gap: 6px; }
 .robo { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; justify-content: center; flex: none; }
 .robo svg { width: 24px; height: 24px; }
@@ -316,7 +317,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const initData = (tg && tg.initData) || "";
 const DEMO = !initData && location.hash === "#demo"; // перегляд без Telegram: сторінка/#demo
 // Поза Telegram (застосунок на iPhone) вхід за особистим кодом APP_KEY: він лежить лише в цьому пристрої
-const APP_VER = "v11 · БОТІК, пристрої, олівець, фіолетова тема";
+const APP_VER = "v12 · закріплена шапка БОТІКа";
 const KEY_LS = "kb_app_key";
 const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (_) { return ""; } };
 const getTok = () => { try { return localStorage.getItem("kb_dev_token") || ""; } catch (_) { return ""; } };
@@ -625,7 +626,7 @@ function msgsHtml() {
     + (S.busy ? `<div class="bub bot typing" role="status" aria-label="БОТІК пише"><i></i><i></i><i></i></div>` : "");
 }
 function viewAI() {
-  return `<header class="dayhead"><div class="daymeta"><div class="wd" style="font-size:28px;font-weight:800;letter-spacing:-.02em">БОТІК</div>
+  return `<header class="dayhead astick"><div class="daymeta"><div class="wd" style="font-size:28px;font-weight:800;letter-spacing:-.02em">БОТІК</div>
     <div class="mo">Питання, плани, поради</div></div>
     <div class="hact">${S.msgs && S.msgs.length ? `<button class="linkbtn" data-aclear>Очистити</button>` : ""}<button class="robo" data-report aria-label="Аналіз бота" title="Аналіз бота">${ICON.bot}</button></div></header>
     <div class="msgs" id="msgs">${msgsHtml()}</div>
